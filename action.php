@@ -84,7 +84,7 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
       $xml = simplexml_load_string($result);
       // Check response
       if($xml->getName() != "response") {
-        print "solr_indexer: Unexpected response:\n$resulr\n";
+        print "solr_indexer: Unexpected response:\n$result\n";
       }
       else {
         print "solr_indexer: index was updated\n";
