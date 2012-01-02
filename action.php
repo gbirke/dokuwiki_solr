@@ -105,7 +105,6 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
   }
   
   function searchpage(&$event, $param) {
-    global $lang;
     global $QUERY;
     if($event->data != "solr_search") {
       return;
@@ -137,11 +136,11 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
     
     $query_str_title = substr($this->array2paramstr($title_params), 1);
     $query_str_content = substr($this->array2paramstr($content_params), 1);
-
+    
     $helper = $this->loadHelper('solr', true);
     
     // Build HTML result
-    print p_locale_xhtml('searchpage');
+    print $this->locale_xhtml('searchpage');
     flush();
 
     //do quick pagesearch
@@ -156,7 +155,7 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
   
     if(!empty($title_result['response']['docs'])){
       print '<div class="search_quickresult">';
-      print '<h3>'.$lang['quickhits'].':</h3>';
+      print '<h3>'.$this->getLang('quickhits').':</h3>';
       $helper->html_render_titles($title_result);
       print '<div class="clearer">&nbsp;</div>';
       print '</div>';  
@@ -174,6 +173,8 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
     $num_snippets = $this->getConf('num_snippets');
     if(!empty($content_result['response']['docs'])){
         $num = 1;
+        print '<div class="search_allresults">';
+        print '<h3>'.$this->getLang('all_hits').':</h3>';
         foreach($content_result['response']['docs'] as $doc){
             $id = $doc['id'];
             $data = array('result' => $content_result, 'id' => $id, 'html' => array());
@@ -188,8 +189,9 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
             print trigger_event('SOLR_RENDER_RESULT_CONTENT', $data, array($this, '_render_content_search_result'));
             flush();
         }
+        print '</div>';
     }else{
-        print '<div class="nothing">'.$lang['nothingfound'].'</div>';
+        print '<div class="nothing">'.$this->getLang('nothingfound').'</div>';
     }
     
     $event->preventDefault();
@@ -232,7 +234,6 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
    * Handle AJAX request for quickly displaying titles
    */
   public function quicksearch(&$event, $params){
-    global $lang;
     if($event->data != 'solr_qsearch') {
       return;
     }
@@ -262,7 +263,7 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
     }
   
     if(!empty($title_result['response']['docs'])){
-      print '<strong>'.$lang['quickhits'].'</strong>';
+      print '<strong>'.$this->getLang('quickhits').'</strong>';
       $helper->html_render_titles($title_result);
     }
     flush();
