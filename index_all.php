@@ -18,8 +18,8 @@ require_once(dirname(__FILE__).'/Pageinfo.php');
 
 // TODO: Add option for deleting index before adding
 // handle options
-$short_opts = 'hqp';
-$long_opts  = array('help', 'quiet', 'progress');
+$short_opts = 'hqpd';
+$long_opts  = array('help', 'quiet', 'progress', 'delete');
 $OPTS = Doku_Cli_Opts::getOptions(__FILE__,$short_opts,$long_opts);
 if ( $OPTS->isError() ) {
     fwrite( STDERR, $OPTS->getMessage() . "\n");
@@ -27,10 +27,16 @@ if ( $OPTS->isError() ) {
     exit(1);
 }
 
+$solr = plugin_load("helper", "solr");
+
 $QUIET = false;
 $PROGRESS = false;
 foreach ($OPTS->options as $key => $val) {
     switch ($key) {
+        case 'd':
+        case 'delete':
+            $solr->solr_query('update', "stream.body=".urlencode('<delete><query>*:*</query></delete>')."&commit=true");
+            break;
         case 'h':
         case 'help':
             _usage();
@@ -51,8 +57,6 @@ foreach ($OPTS->options as $key => $val) {
  * Commit with n milliseconds
  */
 define('COMMIT_WITHIN', 10000);
-
-$solr = plugin_load("helper", "solr");
 
 $data = array(
     'global_count' => 0,
@@ -117,6 +121,7 @@ function _usage() {
         -h, --help     show this help and exit
         -q, --quiet    don't produce any output
         -p, --progress show progress
+        -d, --delete   Delete all pages form index before updating
 ";    
 }
 
