@@ -48,7 +48,7 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
     $controller->register_hook('ACTION_ACT_PREPROCESS', 'BEFORE',  $this, 'allowsearchpage');
     $controller->register_hook('TPL_ACT_UNKNOWN', 'BEFORE',  $this, 'searchpage');
     $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'quicksearch');
-    //TODO Register controller to delete page from solr index when page is deleted
+    $controller->register_hook('IO_WIKIPAGE_WRITE', 'AFTER', $this, 'delete_index');
   }
   
   /**
@@ -268,6 +268,31 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
     flush();
     $event->preventDefault();
     $event->stopPropagation();
+  }
+
+  /**
+   * This event handler deletes a page from the Solr index when it is deleted
+   * in the wiki.
+   */
+  public function delete_index(&$event, $params){
+    // If a revision is stored, do nothing
+    if(!empty($event->data[3])) {
+      return;
+    }
+    // If non-empty content is saved, do nothing
+    if(!empty($event->data[0][1])) {
+      return;
+    }
+    // create page ID from event data
+    $id = $event->data[1] ? "{$event->data[1]}:{$event->data[2]}" : $event->data[2];
+    $helper = $this->loadHelper('solr', true);
+
+    // send delete command to Solr
+    $query = $this->array2paramstr(array(
+      'stream.body' => "<delete><id>{$id}</id></delete>",
+      'commit' => "true"
+    ));
+    $helper->solr_query('update', $query);
   }
   
 }
