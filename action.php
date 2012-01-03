@@ -14,7 +14,7 @@ require_once(dirname(__FILE__).'/Pageinfo.php');
  
 class action_plugin_solr extends DokuWiki_Action_Plugin {
   
-  const PAGING_SIZE = 10;
+  const PAGING_SIZE = 100;
   
   /**
    * Quuery params used in all search requests to Solr
@@ -26,6 +26,19 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
     'wt'   => 'phps',
     'debugQuery' => 'true',
     'start' => 0
+  );
+  
+  /**
+   * Query params used in search requests to Solr that highlight snippets
+   *
+   * @var array
+   */
+  protected $highlight_params = array(
+    'hl' => 'true',
+    'hl.fl' => 'content',
+    'hl.snippets' => 4,
+    'hl.simple.pre' => '<strong class="search_hit">',
+    'hl.simple.post' => '</strong>'
   );
   
   /**
@@ -48,7 +61,7 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
   function register(&$controller) {
     $controller->register_hook('INDEXER_TASKS_RUN', 'BEFORE',  $this, 'updateindex');
     $controller->register_hook('ACTION_ACT_PREPROCESS', 'BEFORE',  $this, 'allowsearchpage');
-    $controller->register_hook('TPL_ACT_UNKNOWN', 'BEFORE',  $this, 'searchpage');
+    $controller->register_hook('TPL_ACT_UNKNOWN', 'BEFORE',  $this, 'dispatch_search');
     $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'quicksearch');
     $controller->register_hook('IO_WIKIPAGE_WRITE', 'AFTER', $this, 'delete_index');
   }
@@ -109,12 +122,23 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
   /**
    * Event handler for displaying the search result page
    */
-  function searchpage(&$event, $param) {
-    global $QUERY;
-    if($event->data != "solr_search") {
+  function dispatch_search(&$event, $param) {
+    
+    if($event->data != "solr_search" && $event->data != "solr_adv_search") {
       return;
     }
+    $method = 'page_'.$event->data;
+    $this->$method();
+        
+    $event->preventDefault();
+    $event->stopPropagation();
+  }
 
+  /**
+   * Do a simple search and display search results
+   */
+  protected function page_solr_search() {
+    global $QUERY;
     $q_arr = preg_split('/\s+/', $QUERY);
     $q_title = '';
     $q_text  = '';
@@ -124,39 +148,29 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
       $q_title .= ' title:'.$val.'*';
       $q_text  .= ' text:'.$val.'*';
     }
+    
     // Prepare the parameters to be sent to Solr
-    $highlight_params = array(
-      'hl' => 'true',
-      'hl.fl' => 'content',
-      'hl.snippets' => 4,
-      'hl.simple.pre' => '<strong class="search_hit">',
-      'hl.simple.post' => '</strong>'
-    );
     $title_params = array_merge($this->common_params, array('q' => $q_title, 'rows' => self::PAGING_SIZE));
-    $content_params = array_merge($this->common_params, $highlight_params, array('q' => $q_text, 'rows' => self::PAGING_SIZE));
+    $content_params = array_merge($this->common_params, $this->highlight_params, array('q' => $q_text, 'rows' => self::PAGING_SIZE));
     
     // Other plugins can manipulate the parameters
     trigger_event('SOLR_QUERY_TITLE', $title_params);
     trigger_event('SOLR_QUERY_CONTENT', $content_params);
     
     $query_str_title = substr($this->array2paramstr($title_params), 1);
-    
     $helper = $this->loadHelper('solr', true);
     
     // Build HTML result
     print $this->locale_xhtml('searchpage');
     flush();
 
-    //do quick pagesearch
-    // Solr query for title
+    //do a search for page titles
     try {
       $title_result = unserialize($helper->solr_query('select', $query_str_title));
-      //echo "<pre>";print_r($title_result);echo "</pre>";
     }
     catch(Exception $e) {
       echo $this->getLang('search_failed');
     }
-  
     if(!empty($title_result['response']['docs'])){
       print '<div class="search_quickresult">';
       print '<h3>'.$this->getLang('quickhits').':</h3>';
@@ -170,9 +184,6 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
     print '<div class="search_allresults">';
     $this->search_query($content_params);
     print '</div>';
-    
-    $event->preventDefault();
-    $event->stopPropagation();
   }
   
   /**
