@@ -5,3 +5,20 @@ $lang['quickhits']  = 'Matching pagenames';
 $lang['all_hits']  = 'Pages containing the search words';
 $lang['nothingfound']= 'Nothing was found.';
 
+$lang['findresults'] = "Find results";
+$lang['allwords'] = "with <strong>all</strong> of the words";
+$lang['exactphrase'] = "with the <strong>exact phrase</strong>";
+$lang['withoutwords'] = '<strong>without</strong> the words';
+$lang['in_namespace'] = 'Search in <strong>namespace</strong>:';
+$lang['match_exact'] = 'Exact match';
+$lang['match_wildcard_begin'] = 'Match from beginning of word';
+
+$lang['btn_search'] = 'Search';
+$lang['btn_advsearch'] = 'Advanced Search';
+
+// Advanced search field labels
+$lang['searchfield_title'] = 'Title';
+$lang['searchfield_abstract'] = 'Abstract';
+$lang['searchfield_creator'] = 'Creator name';
+$lang['searchfield_contributor'] = 'Contributor names';
+

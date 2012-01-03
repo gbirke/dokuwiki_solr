@@ -41,6 +41,8 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
     'hl.simple.post' => '</strong>'
   );
   
+  protected $allowed_actions = array('solr_search', 'solr_adv_search');
+  
   /**
    * return some info
    */
@@ -123,15 +125,23 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
    * Event handler for displaying the search result page
    */
   function dispatch_search(&$event, $param) {
-    
-    if($event->data != "solr_search" && $event->data != "solr_adv_search") {
+    // only handle our actions
+    if(!in_array($event->data, $this->allowed_actions)) {
       return;
     }
     $method = 'page_'.$event->data;
     $this->$method();
-        
+
     $event->preventDefault();
     $event->stopPropagation();
+  }
+  
+  /**
+   * Display advanced search form
+   */
+  protected function page_solr_adv_search() {
+    $helper = $this->loadHelper('solr', true);
+    echo $helper->htmlAdvancedSearchform(); 
   }
 
   /**
@@ -263,8 +273,8 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
    */
   public function allowsearchpage(&$event, $param) {
     global $QUERY;
-    if($event->data != 'solr_search') return;
-    if(!$QUERY) {
+    if(!in_array($event->data, $this->allowed_actions)) return;
+    if(!$QUERY && $event->data ==  'solr_search') {
       $event->data = 'show';
       return;
     }

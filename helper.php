@@ -197,4 +197,126 @@ class helper_plugin_solr extends DokuWiki_Plugin {
     return $lock;
   }
   
+  /**
+   * Output advanced search form. 
+   *
+   */
+  function htmlAdvancedSearchform()
+  {
+	  
+	  ptln('<form action="'.DOKU_SCRIPT.'#advanced_search" accept-charset="utf-8" class="search" id="dw__solr_advsearch" name="dw__solr_advsearch" ><div class="no">');
+		ptln('<input type="hidden" name="do" value="solr_adv_search" />');
+		ptln('<input type="hidden" name="id" value="" />');
+		ptln('<table class="searchfields">');
+		ptln('	<tr>');
+		ptln('		<td rowspan="3" class="advsearch-label1"><strong>'.$this->getLang('findresults').'</strong></td>');
+		ptln('		<td>'.$this->getLang('allwords').'</td>');
+		ptln('		<td>	<input type="text" name="search_plus" value="'.htmlspecialchars($_REQUEST['search_plus']).'" /> </td>');
+		ptln('	</tr>');
+		ptln('	<tr>');
+		ptln('		<td>'.$this->getLang('exactphrase').'</td>');
+		ptln('		<td>	<input type="text" name="search_exact" value="'.htmlspecialchars($_REQUEST['search_exact']).'" /> </td>');
+		ptln('	</tr>');
+		ptln('	<tr>');
+		ptln('		<td>'.$this->getLang('withoutwords').'</td>');
+		ptln('		<td>	<input type="text" name="search_minus" value="'.htmlspecialchars($_REQUEST['search_minus']).'" /> </td>');
+		ptln('	</tr>');
+		ptln('	<tr>');
+		ptln('		<td class="advsearch-label2">'.$this->getLang('in_namespace').'</td>');
+		ptln('		<td colspan="2" id="advsearch-nsselect">');
+    ptln($this->htmlNamespaceSelect(array(
+      'name' => 'search_ns[]',
+      'multiple' => true,
+      'selected' => empty($_REQUEST['search_ns'])?array():$_REQUEST['search_ns'],
+      'class' => 'search-ns',
+      'checkacl' => true
+    )));  
+		ptln('		</td>');
+		ptln('	</tr>');
+		ptln('</table>');
+		// More search fields
+		ptln('<div id="disctinct_searchfields">');
+		$fields = array(
+		  'title' => array(
+		    'label' => $this->getLang('searchfield_title'),
+		    'field' => $this->htmlAdvSearchfield('title')
+		  ),
+		  'abstract' => array(
+		    'label' => $this->getLang('searchfield_abstract'),
+		    'field' => $this->htmlAdvSearchfield('abstract')
+		  ),
+		  'creator' => array(
+		    'label' => $this->getLang('searchfield_creator'),
+		    'field' => $this->htmlAdvSearchfield('creator')
+		  ),
+		  'contributor' => array(
+		    'label' => $this->getLang('searchfield_contributor'),
+		    'field' => $this->htmlAdvSearchfield('contributor')
+		  ),
+		);
+		trigger_event('SOLR_ADV_SEARCH_FIELDS', $fields);
+		ptln('  <table class="searchfields">');
+		foreach($fields as $field_id => $field) {
+		  ptln('    <tr><td>');
+		  ptln('      <label for="search_'.$field_id.'">'.$field['label'].'</label></td><td>'.$field['field']);
+		  ptln('    <td></tr>');
+		}
+		ptln('  </table>');
+		ptln('</div>');
+		ptln('			<input type="submit" value="'.$this->getLang('btn_search').'" class="button" title="'.$this->getLang('btn_search').'" />');
+		ptln('	<br style="clear:both;" /></div>');
+		ptln('</form>');
+  }
+  
+  function htmlNamespaceSelect($options)
+  {
+    global $conf;
+    $options = array_merge(array(
+      'selected' => array(),
+      'multiple' => false,
+      'name' => 'namespaces',
+      'class' => '',
+      'id' => '',
+      'size' => 8,
+      'depth_prefix' => 'nsDepth',
+      'depth_indent' => 5,
+      'depth_char' => '&nbsp;'
+      ), $options);
+    
+    // Namespace selection
+		$s = sprintf('<select name="%s" size="%d" %s%s%s >', 
+      $options['name'],
+      $options['size'],
+      ($options['multiple'] ? ' multiple="multiple"' : ''),
+      ($options['id'] ? " id=\"{$options['id']}\"" : ''),
+      ($options['class'] ? " class=\"{$options['class']}\"" : '')
+    );
+    $namespaces = array();
+		$opts=array();
+		require_once(DOKU_INC.'inc/search.php');
+		search($namespaces, $conf['datadir'],'search_namespaces', $opts);
+		sort($namespaces);
+		foreach($namespaces as $row) {
+      
+			$depth = substr_count($row['id'], ':');
+			$s .= sprintf('  <option value="%s"%s%s>%s</option>',
+        $row['id'],
+        $options['depth_prefix'] ? ' class="'.$options['depth_prefix'].$depth.'"' : '',
+        in_array($row['id'], $options['selected']) ? ' selected="selected"' : '',
+				str_repeat($options['depth_char'], $depth * $options['depth_indent']).preg_replace('/[a-z0-9_]+:/', '', $row['id'])
+      );
+		}
+		$s .= '</select>';
+    return $s;
+  }
+  
+  public function htmlAdvSearchfield($name){
+    $s = '<input type="text" name="search_fields['.$name.']" id="search_field_'.$name.'"';
+    if(!empty($_REQUEST['search_fields'][$name])) {
+      $s .= ' value="'.htmlspecialchars($_REQUEST['search_fields'][$name]).'"';
+    }
+    $s .= '/>';
+    return $s;
+  }
+  
 }
