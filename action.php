@@ -14,6 +14,8 @@ require_once(dirname(__FILE__).'/Pageinfo.php');
  
 class action_plugin_solr extends DokuWiki_Action_Plugin {
   
+  const PAGING_SIZE = 10;
+  
   /**
    * Quuery params used in all search requests to Solr
    *
@@ -21,9 +23,9 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
    */
   protected $common_params = array(
     'q.op' => 'AND',
-    'rows' => '100',
     'wt'   => 'phps',
-    'debugQuery' => 'true'
+    'debugQuery' => 'true',
+    'start' => 0
   );
   
   /**
@@ -127,15 +129,14 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
       'hl.simple.pre' => '<strong class="search_hit">',
       'hl.simple.post' => '</strong>'
     );
-    $title_params = array_merge($this->common_params, array('q' => $q_title));
-    $content_params = array_merge($this->common_params, $highlight_params, array('q' => $q_text));
+    $title_params = array_merge($this->common_params, array('q' => $q_title, 'rows' => self::PAGING_SIZE));
+    $content_params = array_merge($this->common_params, $highlight_params, array('q' => $q_text, 'rows' => self::PAGING_SIZE));
     
     // Other plugins can manipulate the parameters
     trigger_event('SOLR_QUERY_TITLE', $title_params);
     trigger_event('SOLR_QUERY_CONTENT', $content_params);
     
     $query_str_title = substr($this->array2paramstr($title_params), 1);
-    $query_str_content = substr($this->array2paramstr($content_params), 1);
     
     $helper = $this->loadHelper('solr', true);
     
@@ -162,19 +163,42 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
     }
     flush();
     
+    // Output search
+    print '<div class="search_allresults">';
+    $this->search_query($content_params);
+    print '</div>';
+    
+    $event->preventDefault();
+    $event->stopPropagation();
+  }
+  
+  /**
+   * Query Solr and render search result.
+   *
+   * If the result contains more documents than the PAGING_SIZE constant, 
+   * do another Solr request with increased 'start' parameter.
+   *
+   * @param array $params Solr Search query params
+   */
+  protected function search_query($params){
+    $helper = $this->loadHelper('solr', true);
+    $start = empty($params['start']) ? 0 : $params['start']; 
+    $query_str = substr($this->array2paramstr($params), 1);
     // Solr query for content
     try {
-      $content_result = unserialize($helper->solr_query('select', $query_str_content));
+      $content_result = unserialize($helper->solr_query('select', $query_str));
       //echo "<pre>";print_r($content_result['highlighting']);echo "</pre>";
     }
     catch(Exception $e) {
-      echo $this->getLang('search_failed'); 
+      echo $this->getLang('search_failed');
+      return;
     }
     $num_snippets = $this->getConf('num_snippets');
     if(!empty($content_result['response']['docs'])){
-        $num = 1;
-        print '<div class="search_allresults">';
-        print '<h3>'.$this->getLang('all_hits').':</h3>';
+        $num = $start+1;
+        if(!$start) {
+          print '<h3>'.$this->getLang('all_hits').':</h3>';
+        }
         foreach($content_result['response']['docs'] as $doc){
             $id = $doc['id'];
             $data = array('result' => $content_result, 'id' => $id, 'html' => array());
@@ -185,17 +209,18 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
                 }
             }
             $num++;
-            
+            // Enable plugins to add data or render result differently.
             print trigger_event('SOLR_RENDER_RESULT_CONTENT', $data, array($this, '_render_content_search_result'));
             flush();
         }
-        print '</div>';
-    }else{
+        if($content_result['response']['numFound'] > $content_result['response']['start'] + self::PAGING_SIZE) {
+          $params['start'] = $content_result['response']['start'] + self::PAGING_SIZE;
+          $this->search_query($params);
+        }
+    }
+    elseif(!$start) { // if the first search result returned nothing, print nothing found message
         print '<div class="nothing">'.$this->getLang('nothingfound').'</div>';
     }
-    
-    $event->preventDefault();
-    $event->stopPropagation();
   }
   
   public function _render_content_search_result($data) {
