@@ -106,6 +106,9 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
     $event->stopPropagation();
   }
   
+  /**
+   * Event handler for displaying the search result page
+   */
   function searchpage(&$event, $param) {
     global $QUERY;
     if($event->data != "solr_search") {
@@ -181,6 +184,7 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
    * @param array $params Solr Search query params
    */
   protected function search_query($params){
+    global $QUERY;
     $helper = $this->loadHelper('solr', true);
     $start = empty($params['start']) ? 0 : $params['start']; 
     $query_str = substr($this->array2paramstr($params), 1);
@@ -193,6 +197,7 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
       echo $this->getLang('search_failed');
       return;
     }
+    $q_arr = preg_split('/\s+/', $QUERY);
     $num_snippets = $this->getConf('num_snippets');
     if(!empty($content_result['response']['docs'])){
         $num = $start+1;
