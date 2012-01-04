@@ -1,0 +1,17 @@
+#dw__solr_advsearch .searchfields {
+  width:100%;
+}
+
+#dw__solr_advsearch .searchfields .label {
+  width:15em;
+}
+
+#dw__solr_advsearch .searchfields input[type=text],
+#dw__solr_advsearch .searchfields select,
+#dw__solr_advsearch .searchfields textarea {
+ width:100%; 
+}
+
+#dw__solr_advsearch .additional label {
+  font-weight:bold;
+}

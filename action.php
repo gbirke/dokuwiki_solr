@@ -141,7 +141,61 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
    */
   protected function page_solr_adv_search() {
     $helper = $this->loadHelper('solr', true);
-    echo $helper->htmlAdvancedSearchform(); 
+    echo $helper->htmlAdvancedSearchform();
+    
+    // Build search string
+    $q = '';
+    if(!empty($_REQUEST['search_plus'])) {
+      $val = utf8_stripspecials(utf8_strtolower($_REQUEST['search_plus']));
+      $q .= $this->search_words($val, '+', '*');
+    }
+    if(!empty($_REQUEST['search_exact'])) {
+      $q .= ' +"'.$_REQUEST['search_exact'].'"';
+    }
+    if(!empty($_REQUEST['search_minus'])) {
+      $val = utf8_stripspecials(utf8_strtolower($_REQUEST['search_minus']));
+      $q .= $this->search_words($val, '-', '*');
+    }
+    if(!empty($_REQUEST['search_ns'])) {
+      foreach($_REQUEST['search_ns'] as $ns) {
+        $q .= ' idpath:'.strtr($ns, ':','/');
+      }
+    }
+    if(!empty($_REQUEST['search_fields'])) {
+        foreach($_REQUEST['search_fields'] as $key => $value) {
+          //$value = utf8_stripspecials(utf8_strtolower($value));
+          if(!$value) {
+            continue;
+          }
+          $q .= $this->search_words($value, ''.$key.':', '*');
+        }
+    }
+    $q = trim($q); // remove first space
+    // Don't search with empty params
+    if(!$q) {
+      return;
+    }
+    
+    $content_params = array_merge($this->common_params, $this->highlight_params, array(
+        'q' => $q, 
+        'rows' => self::PAGING_SIZE,
+       // 'q.op' => 'OR'
+    ));
+    //print("<p>search string: $q</p>");
+    print $this->locale_xhtml('searchpage');
+    print '<div class="search_allresults">';
+    $this->search_query($content_params);
+    print '</div>';
+    
+  }
+  
+  protected function search_words($str, $prefix='', $suffix='') {
+    $words = preg_split('/\s+/', $str);
+    $search_words = '';
+    foreach($words as $w) {
+      $search_words .= ' ' . $prefix . $w . $suffix;
+    }
+    return $search_words;
   }
 
   /**
@@ -149,15 +203,9 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
    */
   protected function page_solr_search() {
     global $QUERY;
-    $q_arr = preg_split('/\s+/', $QUERY);
-    $q_title = '';
-    $q_text  = '';
-    // construct query string with field name and wildcards
-    foreach($q_arr as $val) {
-      $val = utf8_stripspecials(utf8_strtolower($val));
-      $q_title .= ' title:'.$val.'*';
-      $q_text  .= ' text:'.$val.'*';
-    }
+    $val = utf8_stripspecials(utf8_strtolower($QUERY));
+    $q_title .= $this->search_words($val, 'title:', '*');
+    $q_text  .= $this->search_words($val, '', '*');
     
     // Prepare the parameters to be sent to Solr
     $title_params = array_merge($this->common_params, array('q' => $q_title, 'rows' => self::PAGING_SIZE));

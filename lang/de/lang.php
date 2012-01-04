@@ -16,8 +16,8 @@ $lang['match_wildcard_begin'] = 'Suche am Wortanfang';
 $lang['btn_search'] = 'Suche';
 $lang['btn_advsearch'] = 'Erweiterte Suche';
 
-$lang['searchfield_title'] = '1. Überschrift';
-$lang['searchfield_abstract'] = 'Zusammenfassung';
-$lang['searchfield_creator'] = 'Autor';
-$lang['searchfield_contributor'] = 'Mitwirkende';
+$lang['searchfield_title'] = '1. Überschrift:';
+$lang['searchfield_abstract'] = 'Zusammenfassung:';
+$lang['searchfield_creator'] = 'Autor:';
+$lang['searchfield_contributor'] = 'Mitwirkende:';
 

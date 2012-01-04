@@ -17,8 +17,8 @@ $lang['btn_search'] = 'Search';
 $lang['btn_advsearch'] = 'Advanced Search';
 
 // Advanced search field labels
-$lang['searchfield_title'] = 'Title';
-$lang['searchfield_abstract'] = 'Abstract';
-$lang['searchfield_creator'] = 'Creator name';
-$lang['searchfield_contributor'] = 'Contributor names';
+$lang['searchfield_title'] = 'Title:';
+$lang['searchfield_abstract'] = 'Abstract:';
+$lang['searchfield_creator'] = 'Creator name:';
+$lang['searchfield_contributor'] = 'Contributor names:';
 

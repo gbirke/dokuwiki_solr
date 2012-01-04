@@ -204,26 +204,28 @@ class helper_plugin_solr extends DokuWiki_Plugin {
   function htmlAdvancedSearchform()
   {
 	  
-	  ptln('<form action="'.DOKU_SCRIPT.'#advanced_search" accept-charset="utf-8" class="search" id="dw__solr_advsearch" name="dw__solr_advsearch" ><div class="no">');
+	  ptln('<form action="'.DOKU_SCRIPT.'" accept-charset="utf-8" class="search" id="dw__solr_advsearch" name="dw__solr_advsearch"><div class="no">');
 		ptln('<input type="hidden" name="do" value="solr_adv_search" />');
 		ptln('<input type="hidden" name="id" value="" />');
 		ptln('<table class="searchfields">');
 		ptln('	<tr>');
-		ptln('		<td rowspan="3" class="advsearch-label1"><strong>'.$this->getLang('findresults').'</strong></td>');
-		ptln('		<td>'.$this->getLang('allwords').'</td>');
-		ptln('		<td>	<input type="text" name="search_plus" value="'.htmlspecialchars($_REQUEST['search_plus']).'" /> </td>');
+		ptln('		<td class="advsearch-label1"><strong>'.$this->getLang('findresults').'</strong></td>');
+	  ptln('	</tr>');
+		ptln('	<tr>');
+		ptln('		<td class="label"><label for="search_plus">'.$this->getLang('allwords').'</label></td>');
+		ptln('		<td>	<input type="text" id="search_plus" name="search_plus" value="'.htmlspecialchars($_REQUEST['search_plus']).'" /> </td>');
 		ptln('	</tr>');
 		ptln('	<tr>');
-		ptln('		<td>'.$this->getLang('exactphrase').'</td>');
-		ptln('		<td>	<input type="text" name="search_exact" value="'.htmlspecialchars($_REQUEST['search_exact']).'" /> </td>');
+		ptln('		<td class="label"><label for="search_exact">'.$this->getLang('exactphrase').'</label></td>');
+		ptln('		<td>	<input type="text" id="search_exact" name="search_exact" value="'.htmlspecialchars($_REQUEST['search_exact']).'" /> </td>');
 		ptln('	</tr>');
 		ptln('	<tr>');
-		ptln('		<td>'.$this->getLang('withoutwords').'</td>');
-		ptln('		<td>	<input type="text" name="search_minus" value="'.htmlspecialchars($_REQUEST['search_minus']).'" /> </td>');
+		ptln('		<td class="label"><label for="search_minus">'.$this->getLang('withoutwords').'</label></td>');
+		ptln('		<td>	<input type="text" id="search_minus" name="search_minus" value="'.htmlspecialchars($_REQUEST['search_minus']).'" /> </td>');
 		ptln('	</tr>');
 		ptln('	<tr>');
 		ptln('		<td class="advsearch-label2">'.$this->getLang('in_namespace').'</td>');
-		ptln('		<td colspan="2" id="advsearch-nsselect">');
+		ptln('		<td id="advsearch-nsselect">');
     ptln($this->htmlNamespaceSelect(array(
       'name' => 'search_ns[]',
       'multiple' => true,
@@ -233,6 +235,7 @@ class helper_plugin_solr extends DokuWiki_Plugin {
     )));  
 		ptln('		</td>');
 		ptln('	</tr>');
+		// TODO: Radio buttons for Wildcard yes/no
 		ptln('</table>');
 		// More search fields
 		ptln('<div id="disctinct_searchfields">');
@@ -255,10 +258,10 @@ class helper_plugin_solr extends DokuWiki_Plugin {
 		  ),
 		);
 		trigger_event('SOLR_ADV_SEARCH_FIELDS', $fields);
-		ptln('  <table class="searchfields">');
+		ptln('  <table class="searchfields additional">');
 		foreach($fields as $field_id => $field) {
-		  ptln('    <tr><td>');
-		  ptln('      <label for="search_'.$field_id.'">'.$field['label'].'</label></td><td>'.$field['field']);
+		  ptln('    <tr><td class="label">');
+		  ptln('      <label for="search_field_'.$field_id.'">'.$field['label'].'</label></td><td>'.$field['field']);
 		  ptln('    <td></tr>');
 		}
 		ptln('  </table>');
@@ -311,7 +314,7 @@ class helper_plugin_solr extends DokuWiki_Plugin {
   }
   
   public function htmlAdvSearchfield($name){
-    $s = '<input type="text" name="search_fields['.$name.']" id="search_field_'.$name.'"';
+    $s = '<input type="text" name="search_fields['.$name.']" id="search_field_'.$name.'" ';
     if(!empty($_REQUEST['search_fields'][$name])) {
       $s .= ' value="'.htmlspecialchars($_REQUEST['search_fields'][$name]).'"';
     }
