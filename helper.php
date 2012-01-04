@@ -74,7 +74,7 @@ class helper_plugin_solr extends DokuWiki_Plugin {
     print '<form action="'.wl().'" accept-charset="utf-8" class="search" id="dw__search" method="get"><div class="no">';
     print '<input type="hidden" name="do" value="solr_search" />';
     print '<input type="text" ';
-    if($ACT == 'solr_search') print 'value="'.htmlspecialchars($QUERY).'" ';
+    if($ACT == 'solr_search' || ($ACT == 'solr_adv_search' && !empty($QUERY))) print 'value="'.htmlspecialchars($QUERY).'" ';
     if(!$autocomplete) print 'autocomplete="off" ';
     print 'id="solr_qsearch__in" accesskey="f" name="id" class="edit" title="[F]" />';
     print '<input type="submit" value="'.$lang['btn_search'].'" class="button" title="'.$lang['btn_search'].'" />';
@@ -197,23 +197,32 @@ class helper_plugin_solr extends DokuWiki_Plugin {
     return $lock;
   }
   
+  function htmlAdvancedSearchBtn() {
+    global $ACT;
+    global $ID;
+    $id = $ACT == 'solr_search' ? $ID : '';
+    return html_btn('solr_adv_search', $id, '', array('do' => 'solr_adv_search'), 'get', '', 'Erweiterte Suche');  
+  }
+  
+  
   /**
    * Output advanced search form. 
    *
    */
   function htmlAdvancedSearchform()
   {
-	  
+	  global $QUERY;
+	  $q = htmlspecialchars($QUERY);
 	  ptln('<form action="'.DOKU_SCRIPT.'" accept-charset="utf-8" class="search" id="dw__solr_advsearch" name="dw__solr_advsearch"><div class="no">');
 		ptln('<input type="hidden" name="do" value="solr_adv_search" />');
-		ptln('<input type="hidden" name="id" value="" />');
+		ptln('<input type="hidden" name="id" value="'.$q.'" />');
 		ptln('<table class="searchfields">');
 		ptln('	<tr>');
 		ptln('		<td class="advsearch-label1"><strong>'.$this->getLang('findresults').'</strong></td>');
 	  ptln('	</tr>');
 		ptln('	<tr>');
 		ptln('		<td class="label"><label for="search_plus">'.$this->getLang('allwords').'</label></td>');
-		ptln('		<td>	<input type="text" id="search_plus" name="search_plus" value="'.htmlspecialchars($_REQUEST['search_plus']).'" /> </td>');
+		ptln('		<td>	<input type="text" id="search_plus" name="search_plus" value="'.htmlspecialchars($_REQUEST['search_plus']).$q.'" /> </td>');
 		ptln('	</tr>');
 		ptln('	<tr>');
 		ptln('		<td class="label"><label for="search_exact">'.$this->getLang('exactphrase').'</label></td>');

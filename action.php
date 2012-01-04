@@ -140,6 +140,7 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
    * Display advanced search form and handle the sent form fields
    */
   protected function page_solr_adv_search() {
+    global $QUERY;
     $helper = $this->loadHelper('solr', true);
     echo $helper->htmlAdvancedSearchform();
     
@@ -147,6 +148,10 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
     $q = '';
     if(!empty($_REQUEST['search_plus'])) {
       $val = utf8_stripspecials(utf8_strtolower($_REQUEST['search_plus']));
+      $q .= $this->search_words($val, '+', '*');
+    }
+    elseif(!empty($QUERY)) {
+      $val = utf8_stripspecials(utf8_strtolower($QUERY));
       $q .= $this->search_words($val, '+', '*');
     }
     if(!empty($_REQUEST['search_exact'])) {
