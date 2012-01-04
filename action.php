@@ -137,7 +137,7 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
   }
   
   /**
-   * Display advanced search form
+   * Display advanced search form and handle the sent form fields
    */
   protected function page_solr_adv_search() {
     $helper = $this->loadHelper('solr', true);
@@ -302,7 +302,7 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
   }
   
   /**
-   * Convert an associatoev array to a parameter string.
+   * Convert an associative array to a parameter string.
    * Array values are urlencoded
    *
    * @param array $params
@@ -317,7 +317,7 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
   }
   
   /**
-   * Allow the solr_serach action if the global variable $QUERY is not empty
+   * Allow the solr_search action if the global variable $QUERY is not empty
    */
   public function allowsearchpage(&$event, $param) {
     global $QUERY;

@@ -27,6 +27,16 @@ Replace it with the following code:
       $solr =& plugin_load("helper", "solr");
       $solr->tpl_searchform(true, false); // Search field with ajax and no autocomplete
     ?> 
+    
+This will create a search form where the search terms are searched in the content of the document. Search terms that occur in the first headline (the page title) or the first paragraph (the page abstract) will give the result document a higher ranking. Wildcards are automatically added at the end of each search term.
+
+### Advanced Search ###
+The plugin provides a form for advanced search where users can search for exact phrases, exclude words, search inside page titles, abstracts and namespaces and search for specific authors. To create a button to the advanced search form, place the following code at the appropriate place in your `main.php`:
+
+    <?php
+      echo html_btn('solr_adv_search', $ID, '', array( 'do' =>
+        'solr_adv_search'), 'get', '', 'Advanced search');
+     ?>
 
 Indexing your wiki
 ------------------
@@ -39,5 +49,6 @@ Each page is also indexed when it is visited by a user. See the next section on 
 
 ### The indexing mechanism ###
 After installing the plugin it will index every page using the DokuWiki indexing mechanism: An invisible graphic that calls the file `lib/exe/indexer.php`. `indexer.php` issues an event which is handled by the Solr plugin if the page was modified since it was last indexed. After the plugin has indexed a page, it creates a file with the suffix `.solr_indexed` in the page's meta directory. If the modification date of this file is greater than the page modification date, the plugin does nothing and the other indexing actions specified in `indexer.php` are taken.
+
 
 
