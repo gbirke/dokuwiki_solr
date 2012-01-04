@@ -201,7 +201,8 @@ class helper_plugin_solr extends DokuWiki_Plugin {
     global $ACT;
     global $ID;
     $id = $ACT == 'solr_search' ? $ID : '';
-    return html_btn('solr_adv_search', $id, '', array('do' => 'solr_adv_search'), 'get', '', 'Erweiterte Suche');  
+    return html_btn('solr_adv_search', $id, '', array('do' => 'solr_adv_search'), 
+      'get', $this->getLang('show_advsearch'), $this->getLang('btn_advsearch'));  
   }
   
   

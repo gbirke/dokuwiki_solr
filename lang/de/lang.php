@@ -15,6 +15,7 @@ $lang['match_wildcard_begin'] = 'Suche am Wortanfang';
 
 $lang['btn_search'] = 'Suche';
 $lang['btn_advsearch'] = 'Erweiterte Suche';
+$lang['show_advsearch'] = 'Formular für erweiterte Suche anzeigen';
 
 $lang['searchfield_title'] = '1. Überschrift:';
 $lang['searchfield_abstract'] = 'Zusammenfassung:';

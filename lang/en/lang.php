@@ -15,6 +15,7 @@ $lang['match_wildcard_begin'] = 'Match from beginning of word';
 
 $lang['btn_search'] = 'Search';
 $lang['btn_advsearch'] = 'Advanced Search';
+$lang['show_advsearch'] = 'Show advanced search form';
 
 // Advanced search field labels
 $lang['searchfield_title'] = 'Title:';

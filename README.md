@@ -34,8 +34,8 @@ This will create a search form where the search terms are searched in the conten
 The plugin provides a form for advanced search where users can search for exact phrases, exclude words, search inside page titles, abstracts and namespaces and search for specific authors. To create a button to the advanced search form, place the following code at the appropriate place in your `main.php`:
 
     <?php
-      echo html_btn('solr_adv_search', $ID, '', array( 'do' =>
-        'solr_adv_search'), 'get', '', 'Advanced search');
+      $solr =& plugin_load("helper", "solr");
+      $solr->htmlAdvancedSearchBtn();
      ?>
 
 Indexing your wiki
