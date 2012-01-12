@@ -50,5 +50,7 @@ Each page is also indexed when it is visited by a user. See the next section on 
 ### The indexing mechanism ###
 After installing the plugin it will index every page using the DokuWiki indexing mechanism: An invisible graphic that calls the file `lib/exe/indexer.php`. `indexer.php` issues an event which is handled by the Solr plugin if the page was modified since it was last indexed. After the plugin has indexed a page, it creates a file with the suffix `.solr_indexed` in the page's meta directory. If the modification date of this file is greater than the page modification date, the plugin does nothing and the other indexing actions specified in `indexer.php` are taken.
 
-
+Planned Improvements
+--------------------
+Searching by date: At the moment the creation and modification date is indexed but there is no way to search for it. This is because DokuWiki has no API for creating localized date entry fields and I don't want to create such a field myself. 
 
