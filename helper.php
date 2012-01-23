@@ -213,17 +213,17 @@ class helper_plugin_solr extends DokuWiki_Plugin {
   function htmlAdvancedSearchform()
   {
 	  global $QUERY;
-	  $q = htmlspecialchars($QUERY);
+	  $search_plus = empty($_REQUEST['search_plus']) ? $QUERY : $_REQUEST['search_plus'];
 	  ptln('<form action="'.DOKU_SCRIPT.'" accept-charset="utf-8" class="search" id="dw__solr_advsearch" name="dw__solr_advsearch"><div class="no">');
 		ptln('<input type="hidden" name="do" value="solr_adv_search" />');
-		ptln('<input type="hidden" name="id" value="'.$q.'" />');
+		ptln('<input type="hidden" name="id" value="'.$QUERY.'" />');
 		ptln('<table class="searchfields">');
 		ptln('	<tr>');
 		ptln('		<td class="advsearch-label1"><strong>'.$this->getLang('findresults').'</strong></td>');
 	  ptln('	</tr>');
 		ptln('	<tr>');
 		ptln('		<td class="label"><label for="search_plus">'.$this->getLang('allwords').'</label></td>');
-		ptln('		<td>	<input type="text" id="search_plus" name="search_plus" value="'.htmlspecialchars($_REQUEST['search_plus']).$q.'" /> </td>');
+		ptln('		<td>	<input type="text" id="search_plus" name="search_plus" value="'.htmlspecialchars($search_plus).'" /> </td>');
 		ptln('	</tr>');
 		ptln('	<tr>');
 		ptln('		<td class="label"><label for="search_exact">'.$this->getLang('exactphrase').'</label></td>');
