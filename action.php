@@ -237,7 +237,7 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
     if(!empty($title_result['response']['docs'])){
       print '<div class="search_quickresult">';
       print '<h3>'.$this->getLang('quickhits').':</h3>';
-      $helper->html_render_titles($title_result);
+      $helper->html_render_titles($title_result, 'search_quickhits');
       print '<div class="clearer">&nbsp;</div>';
       print '</div>';  
     }
