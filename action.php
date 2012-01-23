@@ -37,8 +37,13 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
     'hl' => 'true',
     'hl.fl' => 'content',
     'hl.snippets' => 4,
-    'hl.simple.pre' => '<strong class="search_hit">',
-    'hl.simple.post' => '</strong>'
+    'hl.simple.pre' => '!!SOLR_HIGH!!',
+    'hl.simple.post' => '!!END_SOLR_HIGH!!'
+  );
+  
+  public $highlight2html = array(
+    '!!SOLR_HIGH!!' => '<strong class="search_hit">',
+    '!!END_SOLR_HIGH!!' => '</strong>'
   );
   
   protected $allowed_actions = array('solr_search', 'solr_adv_search');
@@ -284,7 +289,15 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
             $data['html']['head'] = html_wikilink(':'.$id, useHeading('navigation')?null:$id, $q_arr);
             if(!$num_snippets || $num < $num_snippets){
                 if(!empty($content_result['highlighting'][$id]['content'])){
-                  $data['html']['body'] = '<div class="search_snippet">'.implode('... ', $content_result['highlighting'][$id]['content']).'</div>';
+                  // Escape <code> and other tags
+                  $highlight = htmlspecialchars(implode('... ', $content_result['highlighting'][$id]['content']))
+                  // replace highlight placeholders with HTML
+                  $highlight = str_replace(
+                    array_keys($this->highlight2html), 
+                    array_values($this->highlight2html), 
+                    $highlight
+                  );
+                  $data['html']['body'] = '<div class="search_snippet">'.$highlight.'</div>';
                 }
             }
             $num++;
