@@ -140,13 +140,24 @@ class helper_plugin_solr extends DokuWiki_Plugin {
     }
     curl_setopt($this->curl_ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
     curl_setopt($this->curl_ch, CURLINFO_HEADER_OUT, 1);
-    $data = curl_exec($this->curl_ch);
     
-    if (curl_errno($this->curl_ch)) {
-      throw new Exception(curl_error($this->curl_ch));
-    } 
-    
-    return $data;
+    $event_data = array(
+      'path' => $path,
+      'query' => $query,
+      'method' => $method,
+      'postfields' => $postfields,
+      'curl' => $this->curl_ch,
+      'result' => null
+    );
+    $evt = new Doku_Event('SOLR_QUERY', $event_data);
+    if($evt->advise_before(true)) {
+      $evt->data['result'] = curl_exec($this->curl_ch);
+      if (curl_errno($this->curl_ch)) {
+        throw new Exception(curl_error($this->curl_ch));
+      } 
+    }
+    $evt->advise_after();
+    return $evt->data['result'];
   }
   
   /**

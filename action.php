@@ -24,7 +24,7 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
   protected $common_params = array(
     'q.op' => 'AND',
     'wt'   => 'phps',
-    'debugQuery' => 'true',
+    'debugQuery' => 'false',
     'start' => 0
   );
   
@@ -219,7 +219,11 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
     
     // Prepare the parameters to be sent to Solr
     $title_params = array_merge($this->common_params, array('q' => $q_title, 'rows' => self::PAGING_SIZE));
-    $content_params = array_merge($this->common_params, $this->highlight_params, array('q' => $q_text, 'rows' => self::PAGING_SIZE));
+    $content_params = array_merge($this->common_params, $this->highlight_params, array(
+      'q' => $q_text, 
+      'rows' => self::PAGING_SIZE, 
+      'x-dw-query-type' => 'content' // Dummy parameter to make this query identifyable in handlers for the SOLR_QUERY event
+    ));
     
     // Other plugins can manipulate the parameters
     trigger_event('SOLR_QUERY_TITLE', $title_params);
@@ -270,7 +274,7 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
     // Solr query for content
     try {
       $content_result = unserialize($helper->solr_query('select', $query_str));
-      //echo "<pre>";print_r($content_result['highlighting']);echo "</pre>";
+      //echo "<pre>";print_r($content_result);echo "</pre>";
     }
     catch(Exception $e) {
       echo $this->getLang('search_failed');
@@ -293,7 +297,7 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
             if(!$num_snippets || $num < $num_snippets){
                 if(!empty($content_result['highlighting'][$id]['content'])){
                   // Escape <code> and other tags
-                  $highlight = htmlspecialchars(implode('... ', $content_result['highlighting'][$id]['content']))
+                  $highlight = htmlspecialchars(implode('... ', $content_result['highlighting'][$id]['content']));
                   // replace highlight placeholders with HTML
                   $highlight = str_replace(
                     array_keys($this->highlight2html), 
