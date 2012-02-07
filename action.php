@@ -213,7 +213,7 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
    */
   protected function page_solr_search() {
     global $QUERY;
-    $val = utf8_stripspecials(utf8_strtolower($QUERY));
+    $val = utf8_strtolower($QUERY);
     $q_title .= $this->search_words($val, 'title:', '*');
     $q_text  .= $this->search_words($val, '', '*');
     
