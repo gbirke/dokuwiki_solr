@@ -285,6 +285,9 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
         }
         foreach($content_result['response']['docs'] as $doc){
             $id = $doc['id'];
+            if(auth_quickaclcheck($id) < AUTH_READ) {
+              continue;
+            }
             $data = array('result' => $content_result, 'id' => $id, 'html' => array());
             $data['html']['head'] = html_wikilink(':'.$id, useHeading('navigation')?null:$id, $q_arr);
             if(!$num_snippets || $num < $num_snippets){
