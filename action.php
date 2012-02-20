@@ -168,7 +168,9 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
     }
     if(!empty($_REQUEST['search_ns'])) {
       foreach($_REQUEST['search_ns'] as $ns) {
-        $q .= ' idpath:'.strtr($ns, ':','/');
+        if(($ns = trim($ns)) != '') {
+          $q .= ' idpath:'.strtr($ns, ':','/');
+        }
       }
     }
     if(!empty($_REQUEST['search_fields'])) {

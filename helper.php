@@ -315,6 +315,7 @@ class helper_plugin_solr extends DokuWiki_Plugin {
       ($options['id'] ? " id=\"{$options['id']}\"" : ''),
       ($options['class'] ? " class=\"{$options['class']}\"" : '')
     );
+    $s .= '<option value=""'.(empty($options['selected']) || in_array('', $options['selected'])?' selected="selected"':'').'>'.$this->getLang('ns_all').'</option>';
     $namespaces = array();
 		$opts=array();
 		require_once(DOKU_INC.'inc/search.php');

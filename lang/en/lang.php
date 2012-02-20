@@ -10,6 +10,7 @@ $lang['allwords'] = "with <strong>all</strong> of the words";
 $lang['exactphrase'] = "with the <strong>exact phrase</strong>";
 $lang['withoutwords'] = '<strong>without</strong> the words';
 $lang['in_namespace'] = 'Search in <strong>namespace</strong>:';
+$lang['ns_all'] = 'All';
 $lang['match_exact'] = 'Exact match';
 $lang['match_wildcard_begin'] = 'Match from beginning of word';
 

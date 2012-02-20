@@ -10,6 +10,7 @@ $lang['allwords'] = "mit <strong>allen</strong> Wörtern";
 $lang['exactphrase'] = "mit der <strong>genauen Wortgruppe</strong>";
 $lang['withoutwords'] = '<strong>ohne</strong> die Wörter';
 $lang['in_namespace'] = 'Suche auf <strong>Namensraum</strong> beschränken:';
+$lang['ns_all'] = 'Alle Namensräume';
 $lang['match_exact'] = 'Exakte Suche';
 $lang['match_wildcard_begin'] = 'Suche am Wortanfang';
 
