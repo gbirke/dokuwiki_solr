@@ -11,6 +11,7 @@ if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN',DOKU_INC.'lib/plugins/');
 require_once(DOKU_PLUGIN.'action.php');
 require_once(dirname(__FILE__).'/AddDocument.php');
 require_once(dirname(__FILE__).'/Pageinfo.php');
+require_once dirname(__FILE__).'/ConnectionException.php';
  
 class action_plugin_solr extends DokuWiki_Action_Plugin {
   
@@ -114,7 +115,7 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
         $helper->update_idxfile($ID);
       }
     }
-    catch(Exception $e) {
+    catch(ConnectionException $e) {
       print "solr_indexer: Request failed: ".$e->getMessage().NL;
     }
 
@@ -242,7 +243,7 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
     try {
       $title_result = unserialize($helper->solr_query('select', $query_str_title));
     }
-    catch(Exception $e) {
+    catch(ConnectionException $e) {
       echo $this->getLang('search_failed');
     }
     if(!empty($title_result['response']['docs'])){
@@ -384,7 +385,7 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
       $title_result = unserialize($helper->solr_query('select', $query_str_title));
       //echo "<pre>";print_r($title_result);echo "</pre>";
     }
-    catch(Exception $e) {
+    catch(ConnectionException $e) {
       echo $this->getLang('search_failed');
     }
   
@@ -419,7 +420,12 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
       'stream.body' => "<delete><id>{$id}</id></delete>",
       'commit' => "true"
     ));
-    $helper->solr_query('update', $query);
+    try {
+      $helper->solr_query('update', $query);
+    }
+    catch(ConnectionException $e) {
+      dbglog($e->getMessage(), $this->getLang('delete_failed'));
+    }
   }
   
 }

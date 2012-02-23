@@ -9,6 +9,7 @@
 if(!defined('DOKU_INC')) die();
 if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN',DOKU_INC.'lib/plugins/');
 require_once(DOKU_INC.'inc/plugin.php');
+require_once dirname(__FILE__).'/ConnectionException.php';
  
 class helper_plugin_solr extends DokuWiki_Plugin {
   
@@ -153,7 +154,7 @@ class helper_plugin_solr extends DokuWiki_Plugin {
     if($evt->advise_before(true)) {
       $evt->data['result'] = curl_exec($this->curl_ch);
       if (curl_errno($this->curl_ch)) {
-        throw new Exception(curl_error($this->curl_ch));
+        throw new ConnectionException(curl_error($this->curl_ch));
       } 
     }
     $evt->advise_after();
