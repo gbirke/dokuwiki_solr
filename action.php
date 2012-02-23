@@ -424,6 +424,7 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
       $helper->solr_query('update', $query);
     }
     catch(ConnectionException $e) {
+      msg($this->getLang('delete_failed'), -1);
       dbglog($e->getMessage(), $this->getLang('delete_failed'));
     }
   }

@@ -1,7 +1,7 @@
 <?php
 
 $lang['search_failed'] = 'Search request to Solr failed. Please contact your administrator';
-$lang['delete_failed'] = 'Page was not removed from index - error connecting to Solr server. Please contact your administrator.';
+$lang['delete_failed'] = 'Page was not removed from search index - error connecting to Solr server. Please contact your administrator.';
 $lang['quickhits']  = 'Matching pagenames';
 $lang['all_hits']  = 'Pages containing the search words';
 $lang['nothingfound']= 'Nothing was found.';
