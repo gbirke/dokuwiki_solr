@@ -7,7 +7,8 @@ Installation
 ------------
 Installation has three stages - basic installation, Solr configuration and integration with your DokuWiki template.
 
-For **basic installation** put the folder containing this README in the `lib/plugins` folder of your DokuWiki installation.   
+For **basic installation** put the folder containing this README in the `lib/plugins` folder of your DokuWiki installation.  
+**IMPORTANT:** If you downloaded the plugin from GitHub, make sure that that folder is named `solr`! Otherwise the plugin won't be found.
 
 For **Solr configuration** install and configure a Solr server with the instructions from the Solr Wiki (http://wiki.apache.org/solr/FrontPage ). For testing purposes you can use the example environment in the `example` folder of the Solr distribution. On the command line, change to the example folder and type
 
