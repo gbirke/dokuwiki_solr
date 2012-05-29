@@ -1,9 +1,13 @@
 <?php
+/**
+ *
+ * @package    solr
+ * @author     Gabriel Birke <birke@d-scribe.de>
+ * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
+ */
 
 /**
  * This class takes creates an XML document for adding documents to Solr.
- *
- * @author Gabriel Birke <birke@d-scribe.de>
  */ 
 class Solr_AddDocument {
   
