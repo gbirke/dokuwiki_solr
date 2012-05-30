@@ -57,6 +57,15 @@ class helper_plugin_solr extends DokuWiki_Plugin {
       ),
     );
   }
+
+  public function autoload_classes($class) {
+    if(strpos($class, 'Solr_') === 0) {
+      $filename = dirname(__FILE__).'/'.strtr(substr($class, 5), '_', '/').'.php';
+      if(file_exists($filename)) {
+        include $filename;
+      }
+    }
+  }
   
   public function tpl_searchform($ajax=false, $autocomplete=true) {
     global $lang;

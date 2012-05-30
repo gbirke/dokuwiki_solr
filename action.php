@@ -8,18 +8,8 @@
  
 if(!defined('DOKU_INC')) die();
 if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN',DOKU_INC.'lib/plugins/');
-if(!defined('__DIR__')) {
-  define('__DIR__', dirname(__FILE__));
-}
 require_once(DOKU_PLUGIN.'action.php');
-require_once __DIR__.'/AddDocument.php';
-require_once __DIR__.'/Pageinfo.php';
-require_once __DIR__.'/ConnectionException.php';
-require_once __DIR__.'/QueryHandler/Title.php';
-require_once __DIR__.'/QueryHandler/Content.php';
-require_once __DIR__.'/QueryHandler/AdvancedSearch.php';
-require_once __DIR__.'/Renderer/Title.php';
-require_once __DIR__.'/Renderer/Content.php';
+
 
  
 class action_plugin_solr extends DokuWiki_Action_Plugin {
@@ -62,6 +52,8 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
     $controller->register_hook('TPL_ACT_UNKNOWN', 'BEFORE',  $this, 'dispatch_search');
     $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'quicksearch');
     $controller->register_hook('IO_WIKIPAGE_WRITE', 'AFTER', $this, 'delete_index');
+    $helper = $this->loadHelper('solr', true);
+    spl_autoload_register(array($helper, 'autoload_classes'));
   }
   
   /**
