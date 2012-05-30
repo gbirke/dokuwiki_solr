@@ -16,9 +16,6 @@ require_once dirname(__FILE__).'/RendererInterface.php';
  */
 abstract class Solr_Renderer_Base implements Solr_Renderer_RendererInterface {
 
-  /**
-   * @var array
-   */
   protected $options;
 
   public function __construct($options) {
