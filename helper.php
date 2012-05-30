@@ -15,15 +15,35 @@ class helper_plugin_solr extends DokuWiki_Plugin {
   
   protected $curl_ch;
   protected $curl_initialized = false;
-  
+
+  protected $autoload_mappings = array();
+
+
   const INDEXER_VERSION = 1;
-  
+
+  public function __construct() {
+    $this->autoload_mappings['Solr_'] = dirname(__FILE__);
+  }
+
+
   public function getMethods(){
     return array(
       array(
         'name'   => 'tpl_searchform',
         'desc'   => 'Prints HTML for search form',
         'params' => array(),
+        'return' => array()
+      ),
+      array(
+        'name'   => 'autoload_classes',
+        'desc'   => 'spl_autoload callback',
+        'params' => array('class' => 'string'),
+        'return' => array()
+      ),
+      array(
+        'name'   => 'add_autoload_mapping',
+        'desc'   => 'Add a class prefix => path mapping for the Solr autoloader',
+        'params' => array('classprefix' => 'string', 'path' => 'string'),
         'return' => array()
       ),
       array(
@@ -59,12 +79,19 @@ class helper_plugin_solr extends DokuWiki_Plugin {
   }
 
   public function autoload_classes($class) {
-    if(strpos($class, 'Solr_') === 0) {
-      $filename = dirname(__FILE__).'/'.strtr(substr($class, 5), '_', '/').'.php';
-      if(file_exists($filename)) {
-        include $filename;
+    foreach($this->autoload_mappings as $classprefix => $path) {
+      if(strpos($class, $classprefix) === 0) {
+        $filename = $path.'/'.strtr(substr($class, strlen($classprefix)), '_', '/').'.php';
+        if(file_exists($filename)) {
+          include $filename;
+          return;
+        }
       }
     }
+  }
+
+  public function add_autoload_mapping($classprefix, $path) {
+    $this->autoload_mappings[$classprefix] = $path;
   }
   
   public function tpl_searchform($ajax=false, $autocomplete=true) {
