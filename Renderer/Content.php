@@ -6,8 +6,6 @@
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  */
 
-require_once dirname(__FILE__).'/Base.php';
-
 /**
  * Description of Content
  *
