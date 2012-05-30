@@ -27,15 +27,6 @@ class helper_plugin_solr extends DokuWiki_Plugin {
         'return' => array()
       ),
       array(
-        'name'   => 'html_render_titles',
-        'desc'   => 'Prints HTML list with search result of titles',
-        'params' => array(
-          'title_result' => 'array',
-          'ul_class' => 'string'
-         ),
-        'return' => array()
-      ),
-      array(
         'name'   => 'lock_index',
         'desc'   => 'Lock index',
         'params' => array(),
@@ -83,38 +74,6 @@ class helper_plugin_solr extends DokuWiki_Plugin {
     print '</div></form>';
     return true;  
   }
-  
-  /**
-   * Render found pagenames as list
-   *
-   * @param array $title_result Solr result array
-   * @param string $ul_class Class for UL tag
-   */
-  public function html_render_titles($title_result, $ul_class="") {
-    print '<ul'.($ul_class?' class="'.$ul_class.'"':'').'>';
-    $count = 0; 
-    foreach($title_result['response']['docs'] as $doc){
-      $id = $doc['id'];
-      if (isHiddenPage($id) || auth_quickaclcheck($id) < AUTH_READ || !page_exists($id, '', false)) {
-        continue;
-      }
-      print '<li> ';
-      if (useHeading('navigation')) {
-          $name = $doc['title'];
-      }else{
-          $ns = getNS($id);
-          if($ns){
-              $name = shorten(noNS($id), ' ('.$ns.')',30);
-          }else{
-              $name = $id;
-          }
-      }
-      print html_wikilink(':'.$id,$name);
-      print '</li> ';
-    }
-    print '</ul> ';
-  }
-  
   
   /**
    * Connect to SOLR server and return result

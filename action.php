@@ -8,46 +8,36 @@
  
 if(!defined('DOKU_INC')) die();
 if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN',DOKU_INC.'lib/plugins/');
+if(!defined('__DIR__')) {
+  define('__DIR__', dirname(__FILE__));
+}
 require_once(DOKU_PLUGIN.'action.php');
-require_once(dirname(__FILE__).'/AddDocument.php');
-require_once(dirname(__FILE__).'/Pageinfo.php');
-require_once dirname(__FILE__).'/ConnectionException.php';
+require_once __DIR__.'/AddDocument.php';
+require_once __DIR__.'/Pageinfo.php';
+require_once __DIR__.'/ConnectionException.php';
+require_once __DIR__.'/QueryHandler/Title.php';
+require_once __DIR__.'/QueryHandler/Content.php';
+require_once __DIR__.'/QueryHandler/AdvancedSearch.php';
+require_once __DIR__.'/Renderer/Title.php';
+require_once __DIR__.'/Renderer/Content.php';
+
  
 class action_plugin_solr extends DokuWiki_Action_Plugin {
   
   const PAGING_SIZE = 100;
-  
+
   /**
-   * Quuery params used in all search requests to Solr
+   * Allowed actions that can be dispatched by dispatch_search
    *
    * @var array
    */
-  protected $common_params = array(
-    'q.op' => 'AND',
-    'wt'   => 'phps',
-    'debugQuery' => 'false',
-    'start' => 0
-  );
-  
-  /**
-   * Query params used in search requests to Solr that highlight snippets
-   *
-   * @var array
-   */
-  protected $highlight_params = array(
-    'hl' => 'true',
-    'hl.fl' => 'content',
-    'hl.snippets' => 4,
-    'hl.simple.pre' => '!!SOLR_HIGH!!',
-    'hl.simple.post' => '!!END_SOLR_HIGH!!'
-  );
-  
-  public $highlight2html = array(
-    '!!SOLR_HIGH!!' => '<strong class="search_hit">',
-    '!!END_SOLR_HIGH!!' => '</strong>'
-  );
-  
   protected $allowed_actions = array('solr_search', 'solr_adv_search');
+
+  /**
+   * Current query string used in assemble_params
+   * @var string
+   */
+  protected $currentQueryStr = '';
   
   /**
    * return some info
@@ -56,7 +46,7 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
     return array(
 		 'author' => 'Gabriel Birke',
 		 'email'  => 'birke@d-scribe.de',
-		 'date'   => '2011-12-21',
+		 'date'   => '2012-05-30',
 		 'name'   => 'Solr (Action component)',
 		 'desc'   => 'Update the Solr index during the indexing event, show search page.',
 		 'url'    => 'http://www.d-scribe.de/',
@@ -143,192 +133,98 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
   }
   
   /**
-   * Display advanced search form and handle the sent form fields
+   * Display advanced search form and display search results
    */
   protected function page_solr_adv_search() {
-    global $QUERY;
     $helper = $this->loadHelper('solr', true);
     echo $helper->htmlAdvancedSearchform();
     
-    // Build search string
-    $q = '';
-    if(!empty($_REQUEST['search_plus'])) {
-      $val = utf8_stripspecials(utf8_strtolower($_REQUEST['search_plus']));
-      $q .= $this->search_words($val, '+', '*');
-    }
-    elseif(!empty($QUERY)) {
-      $val = utf8_stripspecials(utf8_strtolower($QUERY));
-      $q .= $this->search_words($val, '+', '*');
-    }
-    if(!empty($_REQUEST['search_exact'])) {
-      $q .= ' +"'.$_REQUEST['search_exact'].'"';
-    }
-    if(!empty($_REQUEST['search_minus'])) {
-      $val = utf8_stripspecials(utf8_strtolower($_REQUEST['search_minus']));
-      $q .= $this->search_words($val, '-', '*');
-    }
-    if(!empty($_REQUEST['search_ns'])) {
-      foreach($_REQUEST['search_ns'] as $ns) {
-        if(($ns = trim($ns)) != '') {
-          $q .= ' idpath:'.strtr($ns, ':','/');
-        }
-      }
-    }
-    if(!empty($_REQUEST['search_fields'])) {
-        foreach($_REQUEST['search_fields'] as $key => $value) {
-          //$value = utf8_stripspecials(utf8_strtolower($value));
-          if(!$value) {
-            continue;
-          }
-          $q .= $this->search_words($value, ''.$key.':', '*');
-        }
-    }
-    $q = trim($q); // remove first space
-    // Don't search with empty params
-    if(!$q) {
-      return;
-    }
-    
-    $content_params = array_merge($this->common_params, $this->highlight_params, array(
-        'q' => $q, 
-        'rows' => self::PAGING_SIZE,
-       // 'q.op' => 'OR'
-    ));
-    //print("<p>search string: $q</p>");
-    print $this->locale_xhtml('searchpage');
-    print '<div class="search_allresults">';
-    $this->search_query($content_params);
-    print '</div>';
-    
+    $handlers = array('advanced_search' => new Solr_QueryHandler_AdvancedSearch(self::PAGING_SIZE));
+    $handlers = trigger_event('SOLR_QUERY_PARAMS', $handlers, array($this, 'assemble_params'));
+    $rendererData = array(
+        'queryHandlers' => $handlers,
+        'renderers' => array('advanced_search' => new Solr_Renderer_Content(array(
+            'num_snippets' => $this->getConf('num_snippets'),
+            'nothingfound' => $this->getLang('nothingfound'),
+            'pagingSize' => self::PAGING_SIZE
+        )))
+    );
+    trigger_event('SOLR_RENDER_QUERIES', $rendererData, array($this, 'render_queries'));
   }
   
-  protected function search_words($str, $prefix='', $suffix='') {
-    $words = preg_split('/\s+/', $str);
-    $search_words = '';
-    foreach($words as $w) {
-      $search_words .= ' ' . $prefix . $w . $suffix;
-    }
-    return $search_words;
-  }
-
   /**
    * Do a simple search and display search results
    */
   protected function page_solr_search() {
     global $QUERY;
-    $val = utf8_strtolower($QUERY);
-    $q_title .= $this->search_words($val, 'title:', '*');
-    $q_text  .= $this->search_words($val, '', '*');
-    
-    // Prepare the parameters to be sent to Solr
-    $title_params = array_merge($this->common_params, array('q' => $q_title, 'rows' => self::PAGING_SIZE));
-    $content_params = array_merge($this->common_params, $this->highlight_params, array(
-      'q' => $q_text, 
-      'rows' => self::PAGING_SIZE, 
-      'x-dw-query-type' => 'content' // Dummy parameter to make this query identifyable in handlers for the SOLR_QUERY event
-    ));
-    
-    // Other plugins can manipulate the parameters
-    trigger_event('SOLR_QUERY_TITLE', $title_params);
-    trigger_event('SOLR_QUERY_CONTENT', $content_params);
-    
-    $query_str_title = substr($this->array2paramstr($title_params), 1);
-    $helper = $this->loadHelper('solr', true);
-    
-    // Build HTML result
-    print $this->locale_xhtml('searchpage');
-    flush();
 
-    //do a search for page titles
-    try {
-      $title_result = unserialize($helper->solr_query('select', $query_str_title));
-    }
-    catch(ConnectionException $e) {
-      echo $this->getLang('search_failed');
-    }
-    if(!empty($title_result['response']['docs'])){
-      print '<div class="search_quickresult">';
-      print '<h3>'.$this->getLang('quickhits').':</h3>';
-      $helper->html_render_titles($title_result, 'search_quickhits');
-      print '<div class="clearer">&nbsp;</div>';
-      print '</div>';  
-    }
-    flush();
-    
-    // Output search
-    print '<div class="search_allresults">';
-    $this->search_query($content_params);
-    print '</div>';
+    $queryHandlers = array(
+        'title'   => new Solr_QueryHandler_Title(self::PAGING_SIZE),
+        'content' => new Solr_QueryHandler_Content(self::PAGING_SIZE)
+    );
+    $this->currentQueryStr = $QUERY;
+    $queryHandlers = trigger_event('SOLR_QUERY_PARAMS', $queryHandlers, array($this, 'assemble_params'));
+
+    $queryRenderers = array(
+        'title' => new Solr_Renderer_Title(array(
+            'header' => $this->getLang('quickhits'),
+            'ul_class' => 'search_quickhits',
+            'pagingSize' => self::PAGING_SIZE
+        )),
+        'content' => new Solr_Renderer_Content(array(
+            'num_snippets' => $this->getConf('num_snippets'),
+            'nothingfound' => $this->getLang('nothingfound'),
+            'pagingSize' => self::PAGING_SIZE
+        ))
+    );
+    $rendererData = array(
+        'queryHandlers' => $queryHandlers,
+        'renderers' => $queryRenderers
+    );
+    trigger_event('SOLR_RENDER_QUERIES', $rendererData, array($this, 'render_queries'));
   }
-  
-  /**
-   * Query Solr and render search result.
-   *
-   * If the result contains more documents than the PAGING_SIZE constant, 
-   * do another Solr request with increased 'start' parameter.
-   *
-   * @param array $params Solr Search query params
-   */
-  protected function search_query($params){
-    global $QUERY;
+
+  public function assemble_params($data) {
+    foreach($data as $queryHandler) {
+      $queryHandler->createParameters($this->currentQueryStr);
+    }
+    return $data;
+  }
+
+  public function render_queries($data) {
     $helper = $this->loadHelper('solr', true);
-    $start = empty($params['start']) ? 0 : $params['start']; 
-    $query_str = substr($this->array2paramstr($params), 1);
-    // Solr query for content
+    foreach($data['queryHandlers'] as $queryType => $handler) {
+      // Don't execute queries which have no renderer
+      if(empty($data['renderers'][$queryType])) {
+        continue;
+      }
+      $queryParams = $handler->getParameters();
+      // Don't execute queries that query nothing
+      if(empty($queryParams['q'])) {
+        continue;
+      }
+      $this->render_query($helper, $queryParams, $data['renderers'][$queryType]);
+    }
+  }
+
+  protected function render_query($solr, $queryParams, Solr_Renderer_RendererInterface $renderer) {
+    $start = empty($params['start']) ? 0 : $params['start'];
+    $query_str = substr($this->array2paramstr($queryParams), 1);
     try {
-      $content_result = unserialize($helper->solr_query('select', $query_str));
+      $result = unserialize($solr->solr_query('select', $query_str));
       //echo "<pre>";print_r($content_result);echo "</pre>";
     }
     catch(Exception $e) {
       echo $this->getLang('search_failed');
       return;
     }
-    $q_arr = preg_split('/\s+/', $QUERY);
-    $num_snippets = $this->getConf('num_snippets');
-    if(!empty($content_result['response']['docs'])){
-        $num = $start+1;
-        if(!$start) {
-          print '<h3>'.$this->getLang('all_hits').':</h3>';
-        }
-        foreach($content_result['response']['docs'] as $doc){
-            $id = $doc['id'];
-            if(auth_quickaclcheck($id) < AUTH_READ) {
-              continue;
-            }
-            $data = array('result' => $content_result, 'id' => $id, 'html' => array());
-            $data['html']['head'] = html_wikilink(':'.$id, useHeading('navigation')?null:$id, $q_arr);
-            if(!$num_snippets || $num < $num_snippets){
-                if(!empty($content_result['highlighting'][$id]['content'])){
-                  // Escape <code> and other tags
-                  $highlight = htmlspecialchars(implode('... ', $content_result['highlighting'][$id]['content']));
-                  // replace highlight placeholders with HTML
-                  $highlight = str_replace(
-                    array_keys($this->highlight2html), 
-                    array_values($this->highlight2html), 
-                    $highlight
-                  );
-                  $data['html']['body'] = '<div class="search_snippet">'.$highlight.'</div>';
-                }
-            }
-            $num++;
-            // Enable plugins to add data or render result differently.
-            print trigger_event('SOLR_RENDER_RESULT_CONTENT', $data, array($this, '_render_content_search_result'));
-            flush();
-        }
-        if($content_result['response']['numFound'] > $content_result['response']['start'] + self::PAGING_SIZE) {
-          $params['start'] = $content_result['response']['start'] + self::PAGING_SIZE;
-          $this->search_query($params);
-        }
-    }
-    elseif(!$start) { // if the first search result returned nothing, print nothing found message
-        print '<div class="nothing">'.$this->getLang('nothingfound').'</div>';
+    $renderer->renderResult($result);
+    if($result['response']['numFound'] > $result['response']['start'] + self::PAGING_SIZE) {
+      $queryParams['start'] = $result['response']['start'] + self::PAGING_SIZE;
+      $this->render_query($solr, $queryParams, $renderer);
     }
   }
-  
-  public function _render_content_search_result($data) {
-    return '<div class="search_result">'.implode('', $data['html']).'</div>';
-  }
-  
+
   /**
    * Convert an associative array to a parameter string.
    * Array values are urlencoded
@@ -364,35 +260,22 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
     if($event->data != 'solr_qsearch') {
       return;
     }
-    $q_arr = preg_split('/\s+/', $_REQUEST['q']);
-    $q_title = '';
-    // construct query string with field name and wildcards
-    foreach($q_arr as $val) {
-      $val = utf8_stripspecials(utf8_strtolower($val));
-      $q_title .= ' title:'.$val.'*';
-    }
-    $title_params = array_merge($this->common_params, array('q' => $q_title));
-    // Other plugins can manipulate the parameters
-    trigger_event('SOLR_QUERY_TITLE', $title_params);
-    
-    $query_str_title = substr($this->array2paramstr($title_params), 1);
-    
-    $helper = $this->loadHelper('solr', true);
+    $queryHandlers = array(
+        'quicksearch'   => new Solr_QueryHandler_Title(self::PAGING_SIZE),
+    );
+    $this->currentQueryStr = $_REQUEST['q'];
+    $queryHandlers = trigger_event('SOLR_QUERY_PARAMS', $queryHandlers, array($this, 'assemble_params'));
 
-    //do quick pagesearch
-    // Solr query for title
-    try {
-      $title_result = unserialize($helper->solr_query('select', $query_str_title));
-      //echo "<pre>";print_r($title_result);echo "</pre>";
-    }
-    catch(ConnectionException $e) {
-      echo $this->getLang('search_failed');
-    }
-  
-    if(!empty($title_result['response']['docs'])){
-      print '<strong>'.$this->getLang('quickhits').'</strong>';
-      $helper->html_render_titles($title_result);
-    }
+    $rendererData = array(
+        'queryHandlers' => $queryHandlers,
+        'renderers' => array(
+          'quicksearch' => new Solr_Renderer_Title(array(
+              'header' => $this->getLang('quickhits'),
+              'pagingSize' => self::PAGING_SIZE
+          ))
+        )
+    );
+    trigger_event('SOLR_RENDER_QUERIES', $rendererData, array($this, 'render_queries'));
     flush();
     $event->preventDefault();
     $event->stopPropagation();
