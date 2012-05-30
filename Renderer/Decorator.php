@@ -14,15 +14,25 @@ require_once dirname(__FILE__).'/RendererInterface.php';
  *
  * @author birke
  */
-abstract class Solr_Renderer_Base implements Solr_Renderer_RendererInterface {
+abstract class Solr_Renderer_Decorator implements Solr_Renderer_RendererInterface {
 
+  /**
+   * @var array
+   */
   protected $options;
 
-  public function __construct($options) {
+  /**
+   *
+   * @var Solr_Renderer_RendererInterface
+   */
+  protected $rendererComponent;
+
+  public function __construct(Solr_Renderer_RendererInterface $rendererComponent, $options = array()) {
     $this->options = array_merge(
             array('pagingSize' => 100),
             $options
     );
+    $this->rendererComponent = $rendererComponent;
   }
 
   public function renderResult($result) {
@@ -49,5 +59,22 @@ abstract class Solr_Renderer_Base implements Solr_Renderer_RendererInterface {
       $this->renderSuffix($result);
     }
   }
+
+  public function renderDocument($result, $index, $count = 0) {
+    return $this->rendererComponent->renderDocument($result, $index);
+  }
+
+  public function renderNothingfound($result) {
+    $this->rendererComponent->renderNothingfound($result);
+  }
+
+  public function renderPrefix($result) {
+    $this->rendererComponent->renderPrefix($result);
+  }
+
+  public function renderSuffix($result) {
+    $this->rendererComponent->renderSuffix($result);
+  }
+
 
 }
