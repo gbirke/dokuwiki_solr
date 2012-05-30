@@ -8,7 +8,7 @@
  */
 
 /**
- * Description of Base
+ * A simple base renderer
  *
  * @author birke
  */

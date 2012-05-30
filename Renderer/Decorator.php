@@ -7,10 +7,8 @@
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  */
 
-require_once dirname(__FILE__).'/RendererInterface.php';
-
 /**
- * Description of Base
+ * This decorator is the base for extending the Solr rendering process.
  *
  * @author birke
  */
@@ -21,6 +19,8 @@ abstract class Solr_Renderer_Decorator implements Solr_Renderer_RendererInterfac
    */
   protected $options;
 
+  protected $defaultOptions = array();
+
   /**
    *
    * @var Solr_Renderer_RendererInterface
@@ -28,10 +28,7 @@ abstract class Solr_Renderer_Decorator implements Solr_Renderer_RendererInterfac
   protected $rendererComponent;
 
   public function __construct(Solr_Renderer_RendererInterface $rendererComponent, $options = array()) {
-    $this->options = array_merge(
-            array('pagingSize' => 100),
-            $options
-    );
+    $this->options = array_merge($this->defaultOptions, $options);
     $this->rendererComponent = $rendererComponent;
   }
 
