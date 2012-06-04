@@ -13,7 +13,7 @@
 interface Solr_Renderer_RendererInterface {
 
   /**
-   *  Render a Solr result
+   * Render a Solr result
    *
    * Usually calls renderPrefix, calls renderDocument in a loop, then calls
    * renderSuffix.

@@ -27,7 +27,7 @@ class Solr_QueryHandler_Title extends Solr_QueryHandler_Base {
         'q' => $q, 
         'rows' => $this->pagingSize,
         'df' => 'title'
-    ));
+    ), $this->parameters);
   }
 
   

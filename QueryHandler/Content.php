@@ -39,7 +39,7 @@ class Solr_QueryHandler_Content extends Solr_QueryHandler_Base {
     $this->parameters = array_merge($this->common_params, $this->highlight_params, array(
         'q' => $q, 
         'rows' => $this->pagingSize,
-    ));
+    ), $this->parameters);
   }
 
   
