@@ -1,7 +1,7 @@
 Solr Search Plugin
 ==================
 
-This DokuWiki plugin enables you to index and search your wiki pages in a Solr  server installation.
+This DokuWiki plugin enables you to index and search your wiki pages in a Solr server installation.
 
 Installation
 ------------
@@ -50,6 +50,16 @@ Each page is also indexed when it is visited by a user. See the next section on 
 
 ### The indexing mechanism ###
 After installing the plugin it will index every page using the DokuWiki indexing mechanism: An invisible graphic that calls the file `lib/exe/indexer.php`. `indexer.php` issues an event which is handled by the Solr plugin if the page was modified since it was last indexed. After the plugin has indexed a page, it creates a file with the suffix `.solr_indexed` in the page's meta directory. If the modification date of this file is greater than the page modification date, the plugin does nothing and the other indexing actions specified in `indexer.php` are taken.
+
+Information for developers
+--------------------------
+Out of the box, the Solr searches behave like the Dokuwiki searches: Case-insensitive wildcard searches where all words must be contained on the page. With action plugins that react to specific events you can change
+- What is indexed
+- The parameters of the Solr search query
+- How the search result is displayed
+
+### Changing the search query ###
+Although the Solr search behavior could be configured through the XML configuration files that come with the Solr search server, the approach of the Solr plugin is to modify the search behavior solely through URL parameters. This way, individual search behavior can be configured solely through DokuWiki plugins and the Solr config does not need to be changed at all.
 
 Planned Improvements
 --------------------
