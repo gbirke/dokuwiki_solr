@@ -35,18 +35,9 @@ abstract class Solr_Renderer_Decorator implements Solr_Renderer_RendererInterfac
   /**
    * Render a Solr result
    *
-   * If rendererComponent is another decorator, its renderResult method is called.
-   * Otherweise renderPrefix, renderDocument in a loop, then renderSuffix.
-   * Or just renderNothingfound if result document array is empty.
-   *
    * @param array $result Result array from Solr query
    */
   public function renderResult($result) {
-    // Allow children of this class to override renderResult safely
-    if($this->rendererComponent instanceof Solr_Renderer_Decorator) {
-      $this->rendererComponent->renderResult($result);
-      return;
-    }
     // Don't render anything if nothing is found
     if($result['response']['numFound'] == 0) {
       $this->renderNothingfound($result);
