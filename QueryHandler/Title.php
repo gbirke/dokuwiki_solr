@@ -26,7 +26,8 @@ class Solr_QueryHandler_Title extends Solr_QueryHandler_Base {
     $this->parameters = array_merge($this->common_params, array(
         'q' => $q, 
         'rows' => $this->pagingSize,
-        'df' => 'title'
+        'df' => 'title',
+        'sort' => 'score desc, title asc',
     ), $this->parameters);
   }
 
