@@ -166,6 +166,8 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
         'content' => new Solr_Renderer_Content(array(
             'num_snippets' => $this->getConf('num_snippets'),
             'nothingfound' => $this->getLang('nothingfound'),
+            'num_found'    => $this->getLang('num_found'),
+            'all_hits'     => $this->getLang('all_hits'),
             'pagingSize' => self::PAGING_SIZE
         ))
     );

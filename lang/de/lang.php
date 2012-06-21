@@ -5,6 +5,7 @@ $lang['delete_failed'] = 'Seite konnte nicht aus dem Suchindex entfernt werden -
 $lang['quickhits']  = 'Passende Seitennamen';
 $lang['all_hits']  = 'Seiten, auf denen die Suchworte vorkommen';
 $lang['nothingfound']= 'Es wurde nichts gefunden.';
+$lang['num_found']= ':numFound Seiten gefunden (Anfragedauer: :QTime Sekunden)';
 
 $lang['findresults'] = "Ergebnisse finden:";
 $lang['allwords'] = "mit <strong>allen</strong> Wörtern";

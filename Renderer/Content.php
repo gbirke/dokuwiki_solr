@@ -53,6 +53,18 @@ class Solr_Renderer_Content extends Solr_Renderer_Base {
 
   public function renderPrefix($result) {
     print '<div class="search_allresults">';
+    if(!empty($this->options['all_hits'])) {
+      print "\n<h3>".$this->options['all_hits']."</h3>";
+    }
+    if(!empty($this->options['num_found'])) {
+      print "\n<p class='num_found'>";
+      print str_replace(
+              array(':numFound', ':QTime'),
+              array($result['response']['numFound'], sprintf('%0.3f', $result['responseHeader']['QTime']/1000)),
+              $this->options['num_found']
+      );
+      print "</p>\n";
+    }
   }
 
   public function renderSuffix($result) {

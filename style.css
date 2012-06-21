@@ -15,3 +15,13 @@
 #dw__solr_advsearch .additional label {
   font-weight:bold;
 }
+
+.search_allresults .num_found {
+  font-size: 80%;
+  margin:0.5em 0;
+  color:__darkgray__;
+}
+
+.search_allresults h3 + .num_found {
+  margin-top:-0.5em;
+}
