@@ -43,7 +43,14 @@ class Solr_QueryHandler_Content extends Solr_QueryHandler_Base {
     ), $this->parameters);
   }
 
-  
+  public function getPagingSize() {
+    return $this->pagingSize;
+  }
+
+  public function setPagingSize($pagingSize) {
+    $this->pagingSize = $pagingSize;
+  }
+
 }
 
 ?>
