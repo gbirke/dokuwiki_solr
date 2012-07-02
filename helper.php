@@ -185,7 +185,7 @@ class helper_plugin_solr extends DokuWiki_Plugin {
    */
   function update_idxfile($id) {
     $idxtag = metaFN($id,'.solr_indexed');
-    return file_put_contents($idxtag, $this->indexer_version);
+    return file_put_contents($idxtag, self::INDEXER_VERSION);
   }
   
   /**
