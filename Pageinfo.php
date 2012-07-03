@@ -29,6 +29,11 @@ class Solr_Pageinfo {
     $fields['creator'] = $meta['creator'];
     $fields['title'] = $meta['title'];
     $fields['abstract'] = $meta['description']['abstract'];
+    if(!empty($meta['description']['tableofcontents'])) {
+      foreach($meta['description']['tableofcontents'] as $tocEntry) {
+        $fields['headings'.$tocEntry['level']][] = $tocEntry['title'];
+      }
+    }
     if(!empty($meta['contributor'])) {
       foreach($meta['contributor'] as $name) {
         if($name) {

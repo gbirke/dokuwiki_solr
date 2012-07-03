@@ -201,13 +201,21 @@ distribution.
    <field name="title" type="text_general" indexed="true" stored="true"/>
    <field name="content" type="text_general" indexed="true" stored="true" termVectors="true" termPositions="true" termOffsets="true"/>
    <field name="abstract" type="text_general" indexed="true" stored="true"/>
+   <!-- Store individual heading levels. These can be weighted differently. -->
+   <field name="headings1" type="text_general" indexed="true" stored="false" multiValued="true"/>
+   <field name="headings2" type="text_general" indexed="true" stored="false" multiValued="true"/>
+   <field name="headings3" type="text_general" indexed="true" stored="false" multiValued="true"/>
+   <field name="headings4" type="text_general" indexed="true" stored="false" multiValued="true"/>
+   <field name="headings5" type="text_general" indexed="true" stored="false" multiValued="true"/>
+   <field name="headings6" type="text_general" indexed="true" stored="false" multiValued="true"/>
+   <!-- All headings of the document -->
+   <field name="headings" type="text_general" indexed="true" stored="true" multiValued="true"/>
    <field name="created" type="tdate" indexed="true" stored="true"/>
    <field name="modified" type="tdate" indexed="true" stored="true"/>
    <field name="creator" type="lowercase" indexed="true" stored="true"/>
    <field name="contributor" type="lowercase" indexed="true" stored="true" multiValued="true"/>
    <field name="keywords" type="text_ws" indexed="true" stored="true"/>
    <field name="references" type="text_general" indexed="true" stored="true" multiValued="true"/>
-
 
    <!-- catchall field, containing all other searchable text fields (implemented
         via copyField further on in this schema  -->
@@ -230,11 +238,16 @@ distribution.
         is added to the index.  It's used either to index the same field differently,
         or to add multiple fields to the same field for easier/faster searching.  -->
 
-   <copyField source="title" dest="text"/>
    <copyField source="content" dest="text"/>
    <copyField source="id" dest="text"/>
    <copyField source="creator" dest="text"/>
    <copyField source="references" dest="text"/>
    <copyField source="id" dest="idpath"/>
+   <copyField source="headings1" dest="headings"/>
+   <copyField source="headings2" dest="headings"/>
+   <copyField source="headings3" dest="headings"/>
+   <copyField source="headings4" dest="headings"/>
+   <copyField source="headings5" dest="headings"/>
+   <copyField source="headings6" dest="headings"/>
 
 </schema>

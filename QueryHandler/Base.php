@@ -60,7 +60,6 @@ abstract class Solr_QueryHandler_Base {
     return empty($this->parameters[$name]) ? null : $this->parameters[$name];
   }
 
-
   public function setParameter($name, $value) {
     $this->parameters[$name] = $value;
     return $this;
