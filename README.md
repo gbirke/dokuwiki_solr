@@ -59,7 +59,7 @@ Out of the box, the Solr searches behave like the Dokuwiki searches: Case-insens
 - How the search result is displayed
 
 ### Changing the search query ###
-Although the Solr search behavior could be configured through the XML configuration files that come with the Solr search server, the approach of the Solr plugin is to modify the search behavior solely through URL parameters. This way, individual search behavior can be configured solely through DokuWiki plugins and the Solr config does not need to be changed at all.
+Although the Solr search behavior could be configured through the XML configuration files that come with the Solr search server, the approach of the Solr plugin is to modify the search behavior solely through URL parameters. This way, individual search behavior can be configured through DokuWiki plugins and the Solr config does not need to be changed at all.
 
 Planned Improvements
 --------------------
