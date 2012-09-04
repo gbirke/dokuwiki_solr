@@ -28,7 +28,7 @@ interface Solr_Renderer_RendererInterface {
    * Individual documents are not rendered as strings but as array - this way, 
    * the individual parts of the result document can be changed and/or 
    * rearranged by decorators. The array elements will be concatenated by the
-   * renderDocument function.
+   * renderResult function.
    *
    * @param array $result Result array from Solr query
    * @param int $index Index of the document to render (in $result['response']['docs'])

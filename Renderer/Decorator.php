@@ -46,7 +46,7 @@ abstract class Solr_Renderer_Decorator implements Solr_Renderer_RendererInterfac
     if($result['response']['start'] == 0 ) {
       $this->renderPrefix($result);
     }
-    $count = 0;
+    $count = $result['response']['start'];
     foreach($result['response']['docs'] as $index => $doc){
       $id = $doc['id'];
       if (isHiddenPage($id) || auth_quickaclcheck($id) < AUTH_READ || !page_exists($id, '', false)) {
@@ -63,7 +63,7 @@ abstract class Solr_Renderer_Decorator implements Solr_Renderer_RendererInterfac
   }
 
   public function renderDocument($result, $index, $count = 0) {
-    return $this->rendererComponent->renderDocument($result, $index);
+    return $this->rendererComponent->renderDocument($result, $index, $count);
   }
 
   public function renderNothingfound($result) {

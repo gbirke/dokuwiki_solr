@@ -35,7 +35,7 @@ abstract class Solr_Renderer_Base implements Solr_Renderer_RendererInterface {
     if($result['response']['start'] == 0 ) {
       $this->renderPrefix($result);
     }
-    $count = 0;
+    $count = $result['response']['start'];
     foreach($result['response']['docs'] as $index => $doc){
       $id = $doc['id'];
       if (isHiddenPage($id) || auth_quickaclcheck($id) < AUTH_READ || !page_exists($id, '', false)) {

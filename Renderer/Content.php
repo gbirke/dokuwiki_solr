@@ -34,7 +34,7 @@ class Solr_Renderer_Content extends Solr_Renderer_Base {
         'prefix' => '<div class="search_result">',
         'head' => html_wikilink(':'.$id, useHeading('navigation')?null:$id, $this->q_arr)
     );
-    if(!$this->options['num_snippets'] === 0 || $count < $this->options['num_snippets']) {
+    if($this->options['num_snippets'] == 0 || $count < $this->options['num_snippets']) {
         if(!empty($result['highlighting'][$id]['content'])){
           // Escape <code> and other tags
           $highlight = htmlspecialchars(implode('... ', $result['highlighting'][$id]['content']));
