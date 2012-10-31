@@ -43,13 +43,13 @@ Indexing your wiki
 ------------------
 
 ### Indexing all pages ###
-You can call the command line script `index_all.php` that comes with this plugin to index all of your wiki pages. The speed of this script greatly depends on your server speed, so you should not have an execution time limiit for PHP scripts started on the command line.
+You can call the command line script `index_all.php` that comes with this plugin to index all of your wiki pages. The speed of this script greatly depends on your server speed, so you should not have an execution time limit for PHP scripts started on the command line.
 
 ### Indexing individual pages ###
 Each page is also indexed when it is visited by a user. See the next section on how the indexing mechanism works.
 
 ### The indexing mechanism ###
-After installing the plugin it will index every page using the DokuWiki indexing mechanism: An invisible graphic that calls the file `lib/exe/indexer.php`. `indexer.php` issues an event which is handled by the Solr plugin if the page was modified since it was last indexed. After the plugin has indexed a page, it creates a file with the suffix `.solr_indexed` in the page's meta directory. If the modification date of this file is greater than the page modification date, the plugin does nothing and the other indexing actions specified in `indexer.php` are taken.
+After installing the plugin it will index every visited page using the DokuWiki indexing mechanism: An invisible graphic that calls the file `lib/exe/indexer.php`. `indexer.php` issues an event which is handled by the Solr plugin if the page was modified since it was last indexed. After the plugin has indexed a page, it creates a file with the suffix `.solr_indexed` in the page's meta directory. If the modification date of this file is greater than the page modification date, the plugin does nothing and the other indexing actions specified in `indexer.php` are taken.
 
 Information for developers
 --------------------------
@@ -63,5 +63,5 @@ Although the Solr search behavior could be configured through the XML configurat
 
 Planned Improvements
 --------------------
-Searching by date: At the moment the creation and modification date is indexed but there is no way to search for it. This is because DokuWiki has no API for creating localized date entry fields and I don't want to create such a field myself. 
+Searching by date: At the moment the creation and modification date is indexed but there is no way to search for it. This is because DokuWiki has no API for creating localized form fields for dates and I don't want to create such a field myself.
 
