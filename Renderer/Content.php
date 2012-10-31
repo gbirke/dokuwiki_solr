@@ -13,17 +13,24 @@
  */
 class Solr_Renderer_Content extends Solr_Renderer_Base {
 
-  public $highlight2html = array(
-    '!!SOLR_HIGH!!' => '<strong class="search_hit">',
-    '!!END_SOLR_HIGH!!' => '</strong>'
-  );
-  
+  protected $highlight_search;
+  protected $highlight_replace;
+
   protected $q_arr;
 
   public function __construct($options) {
     global $QUERY;
+    $options = array_merge(array(
+        'highlight2html' => array(
+            '!!SOLR_HIGH!!' => '<strong class="search_hit">',
+            '!!END_SOLR_HIGH!!' => '</strong>'
+        )),
+        $options
+    );
     parent::__construct($options);
     $this->q_arr = preg_split('/\s+/', $QUERY);
+    $this->highlight_search = array_keys($options['highlight2html']);
+    $this->highlight_replace = array_values($options['highlight2html']);
   }
 
 
@@ -40,8 +47,8 @@ class Solr_Renderer_Content extends Solr_Renderer_Base {
           $highlight = htmlspecialchars(implode('... ', $result['highlighting'][$id]['content']));
           // replace highlight placeholders with HTML
           $highlight = str_replace(
-            array_keys($this->highlight2html),
-            array_values($this->highlight2html),
+            $this->highlight_search,
+            $this->highlight_replace,
             $highlight
           );
           $data['body'] = '<div class="search_snippet">'.$highlight.'</div>';
