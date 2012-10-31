@@ -5,7 +5,7 @@ $lang['delete_failed'] = 'Page was not removed from search index - error connect
 $lang['quickhits']  = 'Matching pagenames';
 $lang['all_hits']  = 'Pages containing the search words';
 $lang['nothingfound']= 'Nothing was found.';
-$lang['num_found']= 'Found :numFound pages in :QTime seconds';
+$lang['num_found']= 'Found approx. :numFound pages in :QTime seconds';
 
 $lang['findresults'] = "Find results";
 $lang['allwords'] = "with <strong>all</strong> of the words";
