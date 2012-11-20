@@ -134,8 +134,7 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
 
     $resultPagesize = $this->getConf('result_pagesize');
     $contentPagingsize = $resultPagesize > 0 ? $resultPagesize : self::PAGING_SIZE;
-    $startEntry = $resultPagesize > 0 && !empty($_GET['search_page']) ? $_GET['search_page'] * $resultPagesize : 0;
-    $handlers = array('advanced_search' => new Solr_QueryHandler_AdvancedSearch($contentPagingsize, $startEntry));
+    $handlers = array('advanced_search' => new Solr_QueryHandler_AdvancedSearch($contentPagingsize, $this->getStartEntry()));
     $handlers = trigger_event('SOLR_QUERY_PARAMS', $handlers, array($this, 'assemble_params'));
     $rendererData = array(
         'queryHandlers' => $handlers,
@@ -159,10 +158,9 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
 
     $resultPagesize = $this->getConf('result_pagesize');
     $contentPagingsize = $resultPagesize > 0 ? $resultPagesize : self::PAGING_SIZE;
-    $startEntry = $resultPagesize > 0 && !empty($_GET['search_page']) ? $_GET['search_page'] * $resultPagesize : 0;
     $queryHandlers = array(
         'title'   => new Solr_QueryHandler_Title(self::PAGING_SIZE),
-        'content' => new Solr_QueryHandler_Content($contentPagingsize, $startEntry)
+        'content' => new Solr_QueryHandler_Content($contentPagingsize, $this->getStartEntry($resultPagesize))
     );
     
     if($resultPagesize > 0 && $this->getSearchPage() > 1) {
@@ -274,8 +272,19 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
       return empty($_GET['search_page']) || ! intval($_GET['search_page'])? 1 : $_GET['search_page'];
   }
 
-
   /**
+   * Get "start" parameter for Solr search from $_GET[search_page] parameter
+   *
+   * If paging is off ($resultPagesize = 0), return 0
+   *
+   * @param int $resultPagesize
+   * @return int
+   */
+  protected function getStartEntry($resultPagesize) {
+      return $resultPagesize > 0 && !empty($_GET['search_page']) ? ($_GET['search_page'] - 1) * $resultPagesize : 0;
+  }
+
+    /**
    * Handle AJAX request for quickly displaying titles
    */
   public function quicksearch(&$event, $params){
