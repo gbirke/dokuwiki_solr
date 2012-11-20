@@ -131,15 +131,21 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
   protected function page_solr_adv_search() {
     $helper = $this->loadHelper('solr', true);
     echo $helper->htmlAdvancedSearchform();
-    
-    $handlers = array('advanced_search' => new Solr_QueryHandler_AdvancedSearch(self::PAGING_SIZE));
+
+    $resultPagesize = $this->getConf('result_pagesize');
+    $contentPagingsize = $resultPagesize > 0 ? $resultPagesize : self::PAGING_SIZE;
+    $startEntry = $resultPagesize > 0 && !empty($_GET['search_page']) ? $_GET['search_page'] * $resultPagesize : 0;
+    $handlers = array('advanced_search' => new Solr_QueryHandler_AdvancedSearch($contentPagingsize, $startEntry));
     $handlers = trigger_event('SOLR_QUERY_PARAMS', $handlers, array($this, 'assemble_params'));
     $rendererData = array(
         'queryHandlers' => $handlers,
         'renderers' => array('advanced_search' => new Solr_Renderer_Content(array(
             'num_snippets' => $this->getConf('num_snippets'),
             'nothingfound' => $this->getLang('nothingfound'),
-            'pagingSize' => self::PAGING_SIZE
+            'prev_label'   => $this->getLang('prev_label'),
+            'next_label'   => $this->getLang('next_label'),
+            'pagingSize'   => $contentPagingsize,
+            'do_paging'    => $resultPagesize > 0,
         )))
     );
     trigger_event('SOLR_RENDER_QUERIES', $rendererData, array($this, 'render_queries'));

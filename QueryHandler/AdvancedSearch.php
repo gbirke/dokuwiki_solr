@@ -53,9 +53,8 @@ class Solr_QueryHandler_AdvancedSearch extends Solr_QueryHandler_Content {
     $q = trim($q); // remove first space
 
     $this->parameters = array_merge($this->common_params, $this->highlight_params, array(
-        'q' => $q,
-        'rows' => $this->pagingSize,
-    ));
+        'q' => $q
+    ), $this->parameters);
   }
 
   
