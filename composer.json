@@ -1,0 +1,5 @@
+{
+    "require" : {
+        "soup/paginator" : "dev-master"
+    }
+}

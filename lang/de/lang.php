@@ -25,3 +25,5 @@ $lang['searchfield_abstract'] = 'Zusammenfassung:';
 $lang['searchfield_creator'] = 'Autor:';
 $lang['searchfield_contributor'] = 'Mitwirkende:';
 
+$lang['prev_label'] = "Zurück";
+$lang['next_label'] = "Weiter";

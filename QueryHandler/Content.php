@@ -16,6 +16,8 @@ class Solr_QueryHandler_Content extends Solr_QueryHandler_Base {
   
   protected $pagingSize = 100;
 
+  protected $startEntry = 0;
+
   /**
    * Query params used in search requests to Solr that highlight snippets
    *
@@ -29,8 +31,9 @@ class Solr_QueryHandler_Content extends Solr_QueryHandler_Base {
     'hl.simple.post' => '!!END_SOLR_HIGH!!'
   );
   
-  public function __construct($pagingSize) {
-    $this->pagingSize = $pagingSize;
+  public function __construct($pagingSize, $startEntry = 0) {
+    $this->setPagingSize($pagingSize);
+    $this->setStartEntry($startEntry);
   }
 
   public function createParameters($searchString) {
@@ -38,7 +41,6 @@ class Solr_QueryHandler_Content extends Solr_QueryHandler_Base {
     $q = $this->search_words($val, '', '*');
     $this->parameters = array_merge($this->common_params, $this->highlight_params, array(
         'q' => $q, 
-        'rows' => $this->pagingSize,
         'sort' => 'score desc, title asc',
     ), $this->parameters);
   }
@@ -49,6 +51,16 @@ class Solr_QueryHandler_Content extends Solr_QueryHandler_Base {
 
   public function setPagingSize($pagingSize) {
     $this->pagingSize = $pagingSize;
+    $this->parameters['rows'] = $pagingSize;
+  }
+
+  public function getStartEntry() {
+    return $this->startEntry;
+  }
+
+  public function setStartEntry($startEntry) {
+    $this->startEntry = $startEntry;
+    $this->parameters['start'] = $startEntry;
   }
 
 }

@@ -26,3 +26,6 @@ $lang['searchfield_abstract'] = 'Abstract:';
 $lang['searchfield_creator'] = 'Creator name:';
 $lang['searchfield_contributor'] = 'Contributor names:';
 
+// pagination labels
+$lang['prev_label'] = "Prev";
+$lang['next_label'] = "Next";

@@ -58,5 +58,22 @@ interface Solr_Renderer_RendererInterface {
    */
   public function renderNothingfound($result);
 
+  /**
+   * Check the result for more search hits and decide if they should be rendered
+   *
+   * @param array $result Result array from Solr query
+   * @return boolean
+   */
+  public function continueRendering($result);
+
+  /**
+   * Return an option from this renderer
+   *
+   * @param string $name Name of the option
+   * @param mixed  $default Default value to return
+   * @return mixed
+   */
+  public function getOption($name, $default=null);
+
 
 }

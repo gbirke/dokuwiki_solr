@@ -1,0 +1,55 @@
+{
+    "hash": "29ac6354b4ce5761f0772dabd27c6e33",
+    "packages": [
+        {
+            "name": "soup/paginator",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mardix/Paginator",
+                "reference": "5c7382c6e8ad34c583f0f2e9d0ee920a7f68ce37"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://github.com/mardix/Paginator/archive/5c7382c6e8ad34c583f0f2e9d0ee920a7f68ce37.zip",
+                "reference": "5c7382c6e8ad34c583f0f2e9d0ee920a7f68ce37",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "time": "1351726149",
+            "type": "library",
+            "installation-source": "source",
+            "autoload": {
+                "classmap": [
+                    "Paginator.php"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Mardix",
+                    "homepage": "http://mardix.tumblr.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Paginator is a simple class that allows you to create pagination. It doesn't require any database connection. It is compatible with Twitter's Bootstrap Framework, by using the CSS class pagination that is also attached.",
+            "homepage": "https://github.com/mardix/Paginator",
+            "keywords": [
+                "page",
+                "pagination"
+            ]
+        }
+    ],
+    "packages-dev": null,
+    "aliases": [
+
+    ],
+    "minimum-stability": "stable",
+    "stability-flags": {
+        "soup/paginator": 20
+    }
+}

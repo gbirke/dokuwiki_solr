@@ -7,6 +7,12 @@
  */
 
 /**
+ * Require paginator
+ * We don't use composer autoload for PHP 5.2 compat
+ */
+require_once dirname(__FILE__).'/../vendor/soup/paginator/Paginator.php';
+
+/**
  * Description of Content
  *
  * @author birke
@@ -24,7 +30,11 @@ class Solr_Renderer_Content extends Solr_Renderer_Base {
         'highlight2html' => array(
             '!!SOLR_HIGH!!' => '<strong class="search_hit">',
             '!!END_SOLR_HIGH!!' => '</strong>'
-        )),
+        ),
+        // Pagination labels
+        'prev_label' => 'Prev',
+        'next_label' => 'Next'
+        ),
         $options
     );
     parent::__construct($options);
@@ -76,12 +86,27 @@ class Solr_Renderer_Content extends Solr_Renderer_Base {
 
   public function renderSuffix($result) {
     print '</div>';
+    if(!$this->options['do_paging']) {
+        return;
+    }
+    // Render paging
+    $p = new Paginator($_SERVER["REQUEST_URI"], 'search_page=(:num)' , $result['response']['numFound'], $this->options['pagingSize']);
+    $p->setPrevNextTitle($this->options['prev_lavel'], $this->options['next_label']);
+    print $p->render(0, "search_pagination");
   }
 
   public function renderNothingfound($result) {
     print '<div class="nothing">'.$this->options['nothingfound'].'</div>';
   }
-  
+
+  public function continueRendering($result) {
+      // If we're doing pagin, don't request more results
+      if($this->options['do_paging']) {
+          return false;
+      }
+      return parent::continueRendering($result);
+  }
+
 }
 
 ?>

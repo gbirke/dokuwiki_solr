@@ -54,6 +54,7 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
     $controller->register_hook('IO_WIKIPAGE_WRITE', 'AFTER', $this, 'delete_index');
     $helper = $this->loadHelper('solr', true);
     spl_autoload_register(array($helper, 'autoload_classes'));
+
   }
   
   /**
@@ -150,10 +151,17 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
   protected function page_solr_search() {
     global $QUERY;
 
+    $resultPagesize = $this->getConf('result_pagesize');
+    $contentPagingsize = $resultPagesize > 0 ? $resultPagesize : self::PAGING_SIZE;
+    $startEntry = $resultPagesize > 0 && !empty($_GET['search_page']) ? $_GET['search_page'] * $resultPagesize : 0;
     $queryHandlers = array(
         'title'   => new Solr_QueryHandler_Title(self::PAGING_SIZE),
-        'content' => new Solr_QueryHandler_Content(self::PAGING_SIZE)
+        'content' => new Solr_QueryHandler_Content($contentPagingsize, $startEntry)
     );
+    
+    if($resultPagesize > 0 && $this->getSearchPage() > 1) {
+        unset($queryHandlers['title']);
+    }
     $this->currentQueryStr = $QUERY;
     $queryHandlers = trigger_event('SOLR_QUERY_PARAMS', $queryHandlers, array($this, 'assemble_params'));
 
@@ -168,9 +176,15 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
             'nothingfound' => $this->getLang('nothingfound'),
             'num_found'    => $this->getLang('num_found'),
             'all_hits'     => $this->getLang('all_hits'),
-            'pagingSize' => self::PAGING_SIZE
+            'prev_label'   => $this->getLang('prev_label'),
+            'next_label'   => $this->getLang('next_label'),
+            'pagingSize'   => $contentPagingsize,
+            'do_paging'    => $resultPagesize > 0,
         ))
     );
+    if($resultPagesize > 0 && $this->getSearchPage() > 1) {
+        unset($queryRenderers['title']);
+    }
     $rendererData = array(
         'queryHandlers' => $queryHandlers,
         'renderers' => $queryRenderers
@@ -202,7 +216,6 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
   }
 
   protected function render_query($solr, $queryParams, Solr_Renderer_RendererInterface $renderer) {
-    $start = empty($params['start']) ? 0 : $params['start'];
     $query_str = substr($this->array2paramstr($queryParams), 1);
     try {
       $result = unserialize($solr->solr_query('select', $query_str));
@@ -213,7 +226,7 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
       return;
     }
     $renderer->renderResult($result);
-    if($result['response']['numFound'] > $result['response']['start'] + self::PAGING_SIZE) {
+    if($renderer->continueRendering($result)) {
       $queryParams['start'] = $result['response']['start'] + self::PAGING_SIZE;
       $this->render_query($solr, $queryParams, $renderer);
     }
@@ -246,7 +259,16 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
     }
     $event->preventDefault();
   }
-  
+
+  /**
+   * Return the current page of a paged search result
+   * @return int
+   */
+  protected function getSearchPage() {
+      return empty($_GET['search_page']) || ! intval($_GET['search_page'])? 1 : $_GET['search_page'];
+  }
+
+
   /**
    * Handle AJAX request for quickly displaying titles
    */

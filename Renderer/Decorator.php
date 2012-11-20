@@ -43,7 +43,7 @@ abstract class Solr_Renderer_Decorator implements Solr_Renderer_RendererInterfac
       $this->renderNothingfound($result);
       return;
     }
-    if($result['response']['start'] == 0 ) {
+    if($result['response']['start'] == 0 || $this->getOption('do_paging')) {
       $this->renderPrefix($result);
     }
     $count = $result['response']['start'];
@@ -57,7 +57,7 @@ abstract class Solr_Renderer_Decorator implements Solr_Renderer_RendererInterfac
       $count++;
     }
     // Last page
-    if($result['response']['start'] + $this->options['pagingSize'] > $result['response']['numFound']) {
+    if(!$this->continueRendering($result)) {
       $this->renderSuffix($result);
     }
   }
@@ -78,5 +78,24 @@ abstract class Solr_Renderer_Decorator implements Solr_Renderer_RendererInterfac
     $this->rendererComponent->renderSuffix($result);
   }
 
+  public function continueRendering($result) {
+    return $this->rendererComponent->continueRendering($result);
+  }
+
+  /**
+   * Get an option either from this decorator or from the rendererComponent
+   *
+   * @param string $name Name of the option
+   * @param mixed  $default Default value to return
+   * @return mixed
+   */
+  public function getOption($name, $default=null) {
+      if(isset($this->options[$name])) {
+          return $this->options[$name];
+      }
+      else {
+          return $this->rendererComponent->getOption($name, $default);
+      }
+  }
 
 }
