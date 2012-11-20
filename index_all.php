@@ -23,6 +23,9 @@ foreach($constants as $const) {
 }
 $ini_path = defined('DOKU_INC') ? DOKU_INC : realpath(dirname(__FILE__).'/../../../').'/';
 
+ini_set('memory_limit','128M');
+define("NOSESSION", true);
+
 require_once($ini_path.'inc/init.php');
 require_once(DOKU_INC.'inc/common.php');
 require_once(DOKU_INC.'inc/search.php');
@@ -44,8 +47,10 @@ if ( $OPTS->isError() ) {
 
 $solr = plugin_load("helper", "solr");
 
+// global variables;
 $QUIET = false;
 $PROGRESS = false;
+$ERROR_OUTPUT = "";
 foreach ($OPTS->options as $key => $val) {
     switch ($key) {
         case 'd':
@@ -78,7 +83,12 @@ $data = array(
     'errors' => array()
 );
 $opts = array();
-$start = microtime(true); 
+$start = microtime(true);
+
+if(!$QUIET) {
+    echo "Importing files: ";
+}
+
 search($data, $conf['datadir'], 'search_solr_index', $opts, '');
 
 if(!$QUIET) {
@@ -86,7 +96,7 @@ if(!$QUIET) {
     if(!empty($data['errors'])) {
         echo "\nThe following pages encountered an error while importing:\n";
         foreach($data['errors'] as $err) {
-            echo "\n{$err['id']}";
+            echo "\n{$err['id']}: {$err['msg']}";
         }
     }
     echo "\n";
@@ -98,6 +108,7 @@ function search_solr_index(&$data,$base,$file,$type,$lvl,$opts) {
     {
         // Import each file individually to detect errors and minimize unimported docs
         $id = pathID($file);
+        ob_start();
         $info = new Solr_Pageinfo($id);
         $writer = new XmlWriter();
         $writer->openMemory();
@@ -105,22 +116,19 @@ function search_solr_index(&$data,$base,$file,$type,$lvl,$opts) {
         $doc->start(COMMIT_WITHIN);
         $doc->addPage($info->getFields());
         $doc->end();
+        if($errors = ob_get_clean()) {
+            //$data['errors'][] = array('id' => $id, 'msg' => trim($errors));
+        }
         $xmldoc = $writer->outputMemory();
         $result = $solr->solr_query('update', '', 'POST', $xmldoc);
         $xml = simplexml_load_string($result);
         // Check response
         if($xml->getName() != "response") {
-            $data['errors'][] = array('id' => $id, 'result' => $result);
-            if(!$QUIET) {
-                /*
-                echo $result;
-                echo $xmldoc;
-                */
-            }
+            $data['errors'][] = array('id' => $id, 'result' => $result, 'msg' => 'Solr error when importing');
         }
         $data['global_count']++;
         // Show progress dots every 100 pages
-        if(!($data['global_count'] % 100)) {
+        if(!$QUIET && !($data['global_count'] % 100)) {
             echo ".";
         }
     }
