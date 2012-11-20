@@ -20,18 +20,18 @@ class Solr_QueryHandler_AdvancedSearch extends Solr_QueryHandler_Content {
     // Build search string
     $q = '';
     if(!empty($_REQUEST['search_plus'])) {
-      $val = utf8_stripspecials(utf8_strtolower($_REQUEST['search_plus']));
+      $val = utf8_strtolower($_REQUEST['search_plus']);
       $q .= $this->search_words($val, '+', '*');
     }
     elseif(!empty($QUERY)) {
-      $val = utf8_stripspecials(utf8_strtolower($QUERY));
+      $val = utf8_strtolower($QUERY);
       $q .= $this->search_words($val, '+', '*');
     }
     if(!empty($_REQUEST['search_exact'])) {
       $q .= ' +"'.$_REQUEST['search_exact'].'"';
     }
     if(!empty($_REQUEST['search_minus'])) {
-      $val = utf8_stripspecials(utf8_strtolower($_REQUEST['search_minus']));
+      $val = utf8_strtolower($_REQUEST['search_minus']);
       $q .= $this->search_words($val, '-', '*');
     }
     if(!empty($_REQUEST['search_ns'])) {
@@ -46,6 +46,7 @@ class Solr_QueryHandler_AdvancedSearch extends Solr_QueryHandler_Content {
           if(!$value) {
             continue;
           }
+          $value = utf8_strtolower($value);
           $q .= $this->search_words($value, $key.':', '*');
         }
     }

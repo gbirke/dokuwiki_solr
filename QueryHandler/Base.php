@@ -37,7 +37,7 @@ abstract class Solr_QueryHandler_Base {
   );
 
   protected function search_words($str, $prefix='', $suffix='') {
-    $words = preg_split('/\s+/', $str);
+    $words = preg_split('/\s+/', $str, -1, PREG_SPLIT_NO_EMPTY);
     $search_words = '';
     foreach($words as $w) {
       $search_words .= ' ' . $prefix . $w . $suffix;
