@@ -336,6 +336,8 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
     ));
     try {
       $helper->solr_query('update', $query);
+      $idxFile = metaFN($id,'.solr_indexed');
+      unlink($idxFile);
     }
     catch(ConnectionException $e) {
       msg($this->getLang('delete_failed'), -1);
