@@ -14,7 +14,7 @@ For **Solr configuration** install and configure a Solr server with the instruct
 
     java -jar start.jar
 
-The `schema.xml` file that comes with this plugin can be used as your starting  point for creating a Solr search schema. Consider adding stop words to the stop word list. Also consider using language-specific stemmers and domain-specific synonyms.
+The `schema.xml` file that comes with this plugin can be used as your starting point for creating a Solr search schema. Consider adding stop words to the stop word list. Also consider using language-specific stemmers and domain-specific synonyms.
 
 If your Solr server is not located at the URL http://localhost:8983/solr you have to open the DokuWiki configuration page and set the Solr URL in the input field for the Solr plugin.
 
@@ -49,7 +49,7 @@ You can call the command line script `index_all.php` that comes with this plugin
 Each page is also indexed when it is visited by a user. See the next section on how the indexing mechanism works.
 
 ### The indexing mechanism ###
-After installing the plugin it will index every visited page using the DokuWiki indexing mechanism: An invisible graphic that calls the file `lib/exe/indexer.php`. `indexer.php` issues an event which is handled by the Solr plugin if the page was modified since it was last indexed. After the plugin has indexed a page, it creates a file with the suffix `.solr_indexed` in the page's meta directory. If the modification date of this file is greater than the page modification date, the plugin does nothing and the other indexing actions specified in `indexer.php` are taken.
+After the plugin is installed, it will index every visited page using the DokuWiki indexing mechanism: An invisible graphic that calls the file `lib/exe/indexer.php`. `indexer.php` issues an event which is handled by the Solr plugin if the page was modified since it was last indexed. After the plugin has indexed a page, it creates a file with the suffix `.solr_indexed` in the page's meta directory. If the modification date of this file is greater than the page's modification date, the plugin does nothing and the other indexing actions specified in `indexer.php` are taken.
 
 Information for developers
 --------------------------
