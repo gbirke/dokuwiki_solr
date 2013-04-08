@@ -121,6 +121,20 @@ function search_solr_index(&$data,$base,$file,$type,$lvl,$opts) {
         }
         $xmldoc = $writer->outputMemory();
         $result = $solr->solr_query('update', '', 'POST', $xmldoc);
+        // Error document - not a valid XML document, see https://issues.apache.org/jira/browse/SOLR-141
+        if(strpos($result, '<html>') === 0) {
+            $dom = new DOMDocument();
+            $dom->loadHTML($result);
+            $titles = $dom->getElementsByTagName('title');
+            $msg = 'Solr error when importing';
+            if($titles->length > 0) {
+                $msg = $titles->item(0)->textContent();
+            }
+            $data['global_count']++;
+            $data['errors'][] = array('id' => $id, 'result' => $result, 
+                'msg' => 'Solr error when importing: ' . $msg);
+            return true;
+        }
         $xml = simplexml_load_string($result);
         // Check response
         if($xml->getName() != "response") {
