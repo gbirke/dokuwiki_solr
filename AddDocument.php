@@ -7,7 +7,8 @@
  */
 
 /**
- * This class takes creates an XML document for adding documents to Solr.
+ * This class takes creates an XML document for adding wiki pages (documents) 
+ * to Solr.
  */ 
 class Solr_AddDocument {
   
@@ -29,6 +30,11 @@ class Solr_AddDocument {
     $this->writer->endElement();
   }
   
+  /**
+   * Add a wiki page (document) 
+   * 
+   * @param array $fields Fieldname => value(s) pairs to add
+   */
   public function addPage($fields){
     $writer = $this->writer;
     $writer->startElement("doc");
@@ -50,9 +56,10 @@ class Solr_AddDocument {
   }
   
   protected function _outputField($name, $content){
+    $cleanContent = preg_replace('@[\x00-\x08\x0B\x0C\x0E-\x1F]@', ' ', $content);
     $this->writer->startElement("field");
     $this->writer->writeAttribute('name', $name);
-    $this->writer->text($content);
+    $this->writer->text($cleanContent);
     $this->writer->endElement();
   }
   
