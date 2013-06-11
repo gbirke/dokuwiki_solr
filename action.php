@@ -28,20 +28,6 @@ class action_plugin_solr extends DokuWiki_Action_Plugin {
    * @var string
    */
   protected $currentQueryStr = '';
-  
-  /**
-   * return some info
-   */
-  function getInfo(){
-    return array(
-		 'author' => 'Gabriel Birke',
-		 'email'  => 'birke@d-scribe.de',
-		 'date'   => '2012-05-30',
-		 'name'   => 'Solr (Action component)',
-		 'desc'   => 'Update the Solr index during the indexing event, show search page.',
-		 'url'    => 'http://www.d-scribe.de/',
-		 );
-  }
  
   /**
    * Register the handlers with the dokuwiki's event controller

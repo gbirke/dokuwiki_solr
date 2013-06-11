@@ -1,0 +1,7 @@
+base solr
+author Gabriel Birke
+email gb@birke-software.de
+date 2013-06-11
+name Solr search and indexing
+desc This plugin enables you to index and search your wiki pages with a Solr server.
+url https://www.dokuwiki.org/plugin:solr
